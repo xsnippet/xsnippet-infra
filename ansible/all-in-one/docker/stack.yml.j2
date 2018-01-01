@@ -1,0 +1,62 @@
+version: "3.3"
+services:
+  db:
+    image: mongo:3
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - db_state:/data/db
+    networks:
+      - default
+
+  api:
+    image: {{ xsnippet_api_image }}
+    configs:
+      - source: api_config
+        target: /etc/xsnippet-api.conf
+        mode: 0600
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - db
+    networks:
+      - default
+
+  web:
+    image: nginx:latest
+    configs:
+      - source: web_api_config
+        target: /etc/nginx/conf.d/xsnippet-webserver-api.conf
+        mode: 0600
+      - source: web_spa_config
+        target: /etc/nginx/conf.d/xsnippet-webserver-spa.conf
+        mode: 0600
+    volumes:
+      - /home/xsnippet/xsnippet-web:/www/data:ro
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+    networks:
+      - default
+networks:
+  default:
+
+volumes:
+  db_state:
+
+configs:
+  api_config:
+    file: ./xsnippet-api.conf
+  web_api_config:
+    file: ./xsnippet-webserver-api.conf
+  web_spa_config:
+    file: ./xsnippet-webserver-spa.conf

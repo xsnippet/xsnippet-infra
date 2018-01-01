@@ -1,0 +1,201 @@
+[server]
+
+; IP ADDRESS TO LISTEN ON
+;
+; By default, only localhost interface is used for listening. That's
+; why no requests from outer world will be handled. If you want to
+; accept any incoming request on any interface, please change that
+; value to '0.0.0.0'.
+host = 0.0.0.0
+
+; PORT TO LISTEN ON
+;
+; In production you probably will choose a default HTTP port - '80'.
+; If you want to pick any random free port, just pass '0'.
+port = 8000
+
+
+[database]
+
+; DATABASE CONNECTION URI
+;
+; Supported backends: MongoDB only
+connection = mongodb://db:27017/xsnippet
+
+
+[snippet]
+
+; LIST OF ALLOWED SYNTAXES
+;
+; Set constraint on 'snippet.syntax' property. Each syntax should come
+; on separate line. E.g:
+;
+;    syntaxes =
+;        cpp
+;        python
+;        javascript
+;
+
+syntaxes =
+    APL
+    ASN.1
+    ASP.NET
+    Asterisk
+    Brainfuck
+    C
+    C#
+    C++
+    CMake
+    CQL
+    CSS
+    Clojure
+    ClojureScript
+    Closure Stylesheets (GSS)
+    Cobol
+    CoffeeScript
+    Common Lisp
+    Crystal
+    Cypher
+    Cython
+    D
+    DTD
+    Dart
+    Django
+    Dockerfile
+    Dylan
+    EBNF
+    ECL
+    Eiffel
+    Elm
+    Embedded Javascript
+    Embedded Ruby
+    Erlang
+    Esper
+    F#
+    FCL
+    Factor
+    Forth
+    Fortran
+    Gas
+    Gherkin
+    GitHub Flavored Markdown
+    Go
+    Groovy
+    HAML
+    HTML
+    HTTP
+    HXML
+    Haskell
+    Haskell (Literate)
+    Haxe
+    IDL
+    JSON
+    JSON-LD
+    JSX
+    Java
+    Java Server Pages
+    JavaScript
+    Jinja2
+    Julia
+    Kotlin
+    LESS
+    LaTeX
+    LiveScript
+    Lua
+    MS SQL
+    MUMPS
+    MariaDB SQL
+    Markdown
+    Mathematica
+    Modelica
+    MySQL
+    NSIS
+    NTriples
+    Nginx
+    OCaml
+    Objective-C
+    Octave
+    Oz
+    PEG.js
+    PGP
+    PHP
+    PLSQL
+    Pascal
+    Perl
+    Pig
+    Plain Text
+    PowerShell
+    Properties files
+    ProtoBuf
+    Pug
+    Puppet
+    Python
+    Q
+    R
+    RPM Changes
+    RPM Spec
+    Ruby
+    Rust
+    SAS
+    SCSS
+    SPARQL
+    SQL
+    SQLite
+    Sass
+    Scala
+    Scheme
+    Shell
+    Sieve
+    Slim
+    Smalltalk
+    Smarty
+    Solr
+    Soy
+    Spreadsheet
+    Squirrel
+    Stylus
+    Swift
+    SystemVerilog
+    TOML
+    TTCN
+    TTCN_CFG
+    Tcl
+    Textile
+    TiddlyWiki
+    Tiki wiki
+    Tornado
+    Turtle
+    Twig
+    TypeScript
+    TypeScript-JSX
+    VB.NET
+    VBScript
+    VHDL
+    Velocity
+    Verilog
+    Vue.js Component
+    Web IDL
+    XML
+    XQuery
+    YAML
+    Yacas
+    Z80
+    diff
+    edn
+    mIRC
+    mbox
+    mscgen
+    msgenny
+    reStructuredText
+    sTeX
+    troff
+    xu
+
+
+[auth]
+
+; SECRET KEY TO BE USED FOR VALIDATION OF SIGNED TOKENS
+;
+; If not set, it will be generated automatically for this run of application.
+; Set the value explicitly, so that it's preserved between runs.
+secret =
