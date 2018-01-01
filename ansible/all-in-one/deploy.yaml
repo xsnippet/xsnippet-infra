@@ -1,0 +1,120 @@
+---
+- hosts: xsnippet
+  tasks:
+    - name: ensure Python 2 is installed
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      become: true
+  gather_facts: false
+
+- hosts: xsnippet
+  become: true
+  tasks:
+    - name: update apt cache (if needed)
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: install essential packages
+      apt: "name={{ item }} state=latest"
+      with_items:
+        - apt-transport-https
+        - ca-certificates
+
+    - name: add Docker gpg key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: add Docker packages repo
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+      register: newrepo
+
+    - name: update apt cache (if needed)
+      apt: update_cache=yes
+      when: newrepo.changed
+
+    - name: install the latest Docker
+      apt: name=docker-ce state=latest
+
+    - name: initialize Docker Swarm
+      shell: "docker swarm init --advertise-addr 127.0.0.1 || docker stack ls"
+      register: init_result
+      changed_when: "'This node is already part of a swarm' not in init_result.stderr"
+
+    - name: create xsnippet user
+      user:
+        name: xsnippet
+        createhome: yes
+        append: true
+        groups: docker
+
+- hosts: xsnippet
+  vars:
+    # nginx will be configured to serve both API and SPA on the same port (80) under different server names
+    xsnippet_api_server_name: api.xsnippet.org
+    xsnippet_spa_server_name: beta.xsnippet.org
+    # versions of API and SPA to be used
+    xsnippet_api_image: xsnippet/xsnippet-api:68be785
+    xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/alpha-2/xsnippet_web-alpha-2.tar.gz
+  become: true
+  become_user: xsnippet
+  tasks:
+    - file:
+        path: "/home/xsnippet/xsnippet-web"
+        state: directory
+
+    - name: prepare xsnippet-web assets
+      unarchive:
+        src: "{{ xsnippet_web_assets }}"
+        dest: "/home/xsnippet/xsnippet-web"
+        remote_src: yes
+
+    - name: prepare the config file
+      template:
+        src: configs/xsnippet-api.conf.j2
+        dest: "/home/xsnippet/xsnippet-api.conf"
+        mode: 0600
+        owner: xsnippet
+        group: xsnippet
+
+    - name: prepare the webserver config for API
+      template:
+        src:  configs/xsnippet-webserver-api.conf.j2
+        dest: "/home/xsnippet/xsnippet-webserver-api.conf"
+        mode: 0600
+        owner: xsnippet
+        group: xsnippet
+
+    - name: prepare the webserver config for SPA
+      template:
+        src:  configs/xsnippet-webserver-spa.conf.j2
+        dest: "/home/xsnippet/xsnippet-webserver-spa.conf"
+        mode: 0600
+        owner: xsnippet
+        group: xsnippet
+
+    - name: prepare the Docker stack config
+      template:
+        src: docker/stack.yml.j2
+        dest: "/home/xsnippet/stack.yml"
+        mode: 0600
+        owner: xsnippet
+        group: xsnippet
+
+    # The only reason we need to remove the stack first is the fact, that configs in Docker Swarm
+    # are "immutable" and are not updated when the corresponding stacks are updated. See issue
+    # https://github.com/moby/moby/issues/35048 for details.
+    - name: ensure there is no Docker Swarm stack
+      command: "docker stack rm xsnippet"
+      args:
+        chdir: "/home/xsnippet"
+
+    - name: (re-)create the xsnippet Docker Swarm stack
+      command: "docker stack deploy -c stack.yml xsnippet"
+      args:
+        chdir: "/home/xsnippet"
+      register: result
+      # stack removal may still be in progress and stand in a way - do a few retries if necessary
+      until: result.rc == 0
+      retries: 3
+      delay: 10

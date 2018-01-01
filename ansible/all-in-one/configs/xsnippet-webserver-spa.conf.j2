@@ -1,0 +1,13 @@
+server {
+    listen 80;
+
+    server_name {{ xsnippet_spa_server_name }};
+
+    root /www/data;
+
+    location / {
+        error_page 404 =200 /index.html;
+
+        index index.html;
+    }
+}
