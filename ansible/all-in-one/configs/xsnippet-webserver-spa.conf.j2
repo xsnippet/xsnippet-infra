@@ -5,6 +5,14 @@ server {
 
     root /www/data;
 
+    # web assets can be pretty large (>= 0.5 mb), so compress them before sending over the wire.
+    # At the same time, it's probably not worth it for files smaller than 1kb. Compression ratio
+    # of 5 seems to be a good balance between output size and CPU load.
+    gzip on;
+    gzip_comp_level 5;
+    gzip_types text/plain text/css application/json application/x-javascript text/javascript application/javascript image/svg+xml;
+    gzip_min_length 1024;
+
     location / {
         error_page 404 =200 /index.html;
 
