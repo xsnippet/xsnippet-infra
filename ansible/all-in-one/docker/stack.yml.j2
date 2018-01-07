@@ -26,6 +26,19 @@ services:
     networks:
       - default
 
+  web_backend:
+    image: {{ xsnippet_web_backend_image }}
+    environment:
+      - XSNIPPET_API_URL=http://{{ xsnippet_api_server_name }}
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    depends_on:
+      - api
+    networks:
+      - default
+
   web:
     image: nginx:latest
     configs:
