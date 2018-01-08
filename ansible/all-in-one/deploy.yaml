@@ -54,8 +54,8 @@
     xsnippet_api_server_name: api.xsnippet.org
     xsnippet_spa_server_name: beta.xsnippet.org
     # versions of API and SPA to be used
-    xsnippet_api_image: xsnippet/xsnippet-api:33b5178
-    xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/alpha-5/xsnippet_web-alpha-5.tar.gz
+    xsnippet_api_image: xsnippet/xsnippet-api:94ad81d
+    xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/alpha-6/xsnippet_web-alpha-6.tar.gz
   become: true
   become_user: xsnippet
   tasks:
