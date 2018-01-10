@@ -43,8 +43,13 @@ services:
         condition: on-failure
     depends_on:
       - api
+    # "publish" the exposed port to the host effectively configuring a DNAT iptables rule. This
+    # is useful for us, becase we get real remote IPs in nginx logs instead of Docker Swarm VIP
     ports:
-      - "80:80"
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
     networks:
       - default
 networks:
