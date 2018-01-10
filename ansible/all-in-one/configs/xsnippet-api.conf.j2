@@ -15,6 +15,22 @@ host = 0.0.0.0
 port = 8000
 
 
+; ACCESS LOG FORMAT
+;
+; Note, that you have to use double % signs for escaping to work.
+;
+; %t  - datetime of the request
+; %a  - remote address
+; %r  - request status line
+; %s  - response status code
+; %b  - response size (bytes)
+; %Tf - request time (seconds)
+;
+; nginx will set X-Real-IP header value to be equal to remote address
+;
+access_log_format = %%t %%{X-Real-IP}i "%%r" %%s %%b %%{User-Agent}i" %%Tf
+
+
 [database]
 
 ; DATABASE CONNECTION URI
