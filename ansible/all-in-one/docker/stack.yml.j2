@@ -51,6 +51,14 @@ services:
         mode: 0600
     volumes:
       - /home/xsnippet/xsnippet-web:/www/data:ro
+{% if xsnippet_api_https %}
+      - {{ xsnippet_api_ssl_cert }}:/etc/nginx/xsnippet_api_ssl.cert:ro
+      - {{ xsnippet_api_ssl_key }}:/etc/nginx/xsnippet_api_ssl.key:ro
+{% endif %}
+{% if xsnippet_spa_https %}
+      - {{ xsnippet_spa_ssl_cert }}:/etc/nginx/xsnippet_spa_ssl.cert:ro
+      - {{ xsnippet_spa_ssl_key }}:/etc/nginx/xsnippet_spa_ssl.key:ro
+{% endif %}
     deploy:
       replicas: 1
       restart_policy:
@@ -64,6 +72,12 @@ services:
         published: 80
         protocol: tcp
         mode: host
+{% if xsnippet_api_https or xsnippet_spa_https %}
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+{% endif %}
     networks:
       - default
 networks:
