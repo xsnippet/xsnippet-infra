@@ -57,9 +57,40 @@
     xsnippet_api_image: xsnippet/xsnippet-api:b70162b
     xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/alpha-8/xsnippet_web-alpha-8.tar.gz
     xsnippet_web_backend_image: xsnippetci/xsnippet-web-backend:latest
+    # paths to SSL certifactes on the target machine
+    xsnippet_api_https_redirect: false  # do not force HTTPS redirect for now to allow for local development
+    xsnippet_api_ssl_cert: /home/xsnippet/xsnippet_api_ssl.cert
+    xsnippet_api_ssl_key: /home/xsnippet/xsnippet_api_ssl.key
+    xsnippet_spa_https_redirect: true
+    xsnippet_spa_ssl_cert: /home/xsnippet/xsnippet_spa_ssl.cert
+    xsnippet_spa_ssl_key: /home/xsnippet/xsnippet_spa_ssl.key
   become: true
   become_user: xsnippet
   tasks:
+    - stat:
+        path: "{{ xsnippet_api_ssl_cert }}"
+      register: xsnippet_api_ssl_cert_file
+
+    - stat:
+        path: "{{ xsnippet_api_ssl_key }}"
+      register: xsnippet_api_ssl_key_file
+
+    - name: serve xsnippet-api over HTTPS, if a certifacte/key pair has been provided
+      set_fact:
+        xsnippet_api_https: "{{ xsnippet_api_ssl_cert_file.stat.exists and xsnippet_api_ssl_key_file.stat.exists }}"
+
+    - stat:
+        path: "{{ xsnippet_spa_ssl_cert }}"
+      register: xsnippet_spa_ssl_cert_file
+
+    - stat:
+        path: "{{ xsnippet_spa_ssl_key }}"
+      register: xsnippet_spa_ssl_key_file
+
+    - name: serve xsnippet-web (and xsnippet-web-backend) over HTTPS, if a certifacte/key pair has been provided
+      set_fact:
+        xsnippet_spa_https: "{{ xsnippet_spa_ssl_cert_file.stat.exists and xsnippet_spa_ssl_key_file.stat.exists }}"
+
     - file:
         path: "/home/xsnippet/xsnippet-web"
         state: directory
