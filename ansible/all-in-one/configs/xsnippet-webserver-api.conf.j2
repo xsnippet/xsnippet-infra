@@ -1,3 +1,24 @@
+{% if xsnippet_api_rate_limits %}
+# default limit for any request (per IP)
+limit_req_zone $binary_remote_addr zone=default:10m  rate=10r/s;
+
+# limit on creation of new snippets by unauthorized users (per IP).
+map "$http_authorization:$request_method" $unauthenticated_post_limit {
+    default     "";
+    ":POST"     $binary_remote_addr;
+}
+limit_req_zone $unauthenticated_post_limit zone=unauthenticated:10m rate=20r/m;
+
+# limit on creation of new snippets by authorized users (per IP).
+# Note, that we here do not care whether the submitted token is correct or not - in the latter
+# case we'll just respond with 401 Unauthorized.
+map "$http_authorization:$request_method" $authenticated_post_limit {
+    default      "";
+    "~*.+:POST"  $binary_remote_addr;
+}
+limit_req_zone $authenticated_post_limit zone=authenticated:10m rate=1r/s;
+{% endif %}
+
 upstream xsnippet_api {
     server api:8000;
 }
@@ -37,6 +58,18 @@ server {
     gzip_min_length 1024;
 
     location / {
+{% if xsnippet_api_rate_limits %}
+        # if someone exceeds the limit - respond with 429 Too Many Requests and treat this as a warning
+        limit_req_log_level warn;
+        limit_req_status    429;
+
+        # The burst parameter defines how many requests a client can make in excess of the rate
+        # specified by the zone.
+        limit_req zone=unauthenticated burst=5 nodelay;
+        limit_req zone=authenticated burst=5 nodelay;
+        limit_req zone=default burst=5 nodelay;
+{% endif %}
+
         add_header 'Access-Control-Allow-Origin' '*';
         add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
         add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range,Link';
