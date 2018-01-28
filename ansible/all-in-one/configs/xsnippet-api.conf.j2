@@ -28,7 +28,7 @@ port = 8000
 ;
 ; nginx will set X-Real-IP header value to be equal to remote address
 ;
-access_log_format = %%t %%{X-Real-IP}i "%%r" %%s %%b %%{User-Agent}i" %%Tf
+access_log_format = %%{X-Real-IP}i "%%r" %%s %%b %%{User-Agent}i" %%Tf
 
 
 [database]
