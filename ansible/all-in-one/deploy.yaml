@@ -36,6 +36,21 @@
     - name: install the latest Docker
       apt: name=docker-ce state=latest
 
+    - name: configure Docker to send container logs to journald
+      template:
+        src: configs/docker.conf.j2
+        dest: "/etc/docker/daemon.json"
+        mode: 0644
+        owner: root
+        group: root
+      register: newdockerconf
+
+    - name: restart Docker (if needed)
+      service:
+        name: docker
+        state: restarted
+      when: newdockerconf.changed
+
     - name: initialize Docker Swarm
       shell: "docker swarm init --advertise-addr 127.0.0.1 || docker stack ls"
       register: init_result
