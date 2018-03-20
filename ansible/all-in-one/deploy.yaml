@@ -70,7 +70,7 @@
     xsnippet_spa_server_name: beta.xsnippet.org
     # versions of API and SPA to be used
     xsnippet_api_image: xsnippet/xsnippet-api:b70162b
-    xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/alpha-12/xsnippet_web-alpha-12.tar.gz
+    xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/beta-1/xsnippet_web-beta-1.tar.gz
     xsnippet_web_backend_image: xsnippetci/xsnippet-web-backend:latest
     # paths to SSL certifactes on the target machine
     xsnippet_api_https_redirect: false  # do not force HTTPS redirect for now to allow for local development
