@@ -69,7 +69,7 @@
     xsnippet_api_server_name: api.xsnippet.org
     xsnippet_spa_server_name: xsnippet.org
     # versions of API and SPA to be used
-    xsnippet_api_image: xsnippet/xsnippet-api:b70162b
+    xsnippet_api_image: xsnippetci/xsnippet-api:latest
     xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/v1.0.0/xsnippet_web-v1.0.0.tar.gz
     xsnippet_web_backend_image: xsnippetci/xsnippet-web-backend:latest
     # paths to SSL certifactes on the target machine
