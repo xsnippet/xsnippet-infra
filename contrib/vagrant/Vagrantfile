@@ -1,0 +1,65 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # Use vagrant-hostmanager to manage /etc/hosts on both host machine and
+  # guest VMs. We need this so we can get acess to services using domains
+  # like 'xsnippet.local' and/or 'api.xsnippet.local'.
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+
+  # Deploy XSnippet Dev environment using one VM and all-in-one Ansible
+  # playbook, so we can be as close to production environment as possible.
+  config.vm.define "xsnippet-dev" do |node|
+    node.vm.box = "ubuntu/xenial64"
+
+    # Apparently, neither Vagrant hosts manager plugin supports extracting an
+    # IP address of dynamically configured private network (DHCP). So the most
+    # easier way to properly configure /etc/hosts is to use static IP address,
+    # and let the plugin to do everything else.
+    node.vm.network :private_network, ip: "172.16.100.2"
+
+    # Setup hostnames that we are going to use to resolve a VM.
+    node.vm.hostname = "xsnippet.local"
+    node.hostmanager.aliases = ["api.#{node.vm.hostname}"]
+
+    node.vm.provider :virtualbox do |provider|
+      provider.name = "xsnippet-dev"
+      provider.memory = 1024
+    end
+
+    node.vm.provider :libvirt do |provider, override|
+      override.vm.box = "generic/ubuntu1604"
+      provider.memory = 1024
+    end
+
+    # Sync (mount) xsnippet-infra to a VM, so Ansible can get acces to
+    # production playbook(s).
+    node.vm.synced_folder File.join('..', '..'), '/vagrant'
+
+    # Bootstrap a VM using the very same Ansible playbook we use to deploy
+    # production environment. The only difference from production setup is
+    # domains we want to use.
+    node.vm.provision :ansible_local do |ansible|
+      ansible.playbook = File.join("ansible", "all-in-one", "deploy.yaml")
+      ansible.extra_vars = {
+        xsnippet_api_server_name: "api.#{node.vm.hostname}",
+        xsnippet_spa_server_name: node.vm.hostname,
+      }
+      ansible.groups = {
+        xsnippet: ["xsnippet-dev"],
+      }
+    end
+
+    # Reconfigure XSnippet-Web to point to development version of XSnippet API
+    # instead of production one.
+    node.vm.provision :shell, inline: <<~SHELL
+      su - xsnippet -c 'cat > ~/xsnippet-web/conf.json << EOF
+      {
+        "API_BASE_URI": "//api.#{node.vm.hostname}"
+      }
+      EOF'
+    SHELL
+  end
+end
