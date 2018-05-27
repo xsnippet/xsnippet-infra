@@ -37,20 +37,57 @@ server {
     gzip_min_length 1024;
 
     location / {
-        add_header 'Access-Control-Allow-Origin' '*';
-        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-        add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range,Link';
-        add_header 'Access-Control-Expose-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range,Link';
-
         if ($request_method = 'OPTIONS') {
-           add_header 'Access-Control-Allow-Origin' '*';
-           add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
-           add_header 'Access-Control-Max-Age' 1728000;
-           add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Content-Range,Range,Link';
-           add_header 'Content-Type' 'text/plain; charset=utf-8';
-           add_header 'Content-Length' 0;
-           return 204;
+            # The Access-Control-Allow-Origin response header indicates whether
+            # the response can be shared with resources with the given origin.
+            # In other words, browsers will fail to make a request if the
+            # domain of the page from which the request is initiated does not
+            # match one specified here.
+            add_header 'Access-Control-Allow-Origin' '*';
+
+            # The Access-Control-Allow-Methods header specifies the method or
+            # methods allowed when accessing the resource. We do not know for
+            # sure which methods are allowed by a certain API endpoint, so
+            # allow any method and let the API decide which one should be
+            # rejected in a post-preflight step.
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, PATCH, DELETE';
+
+            # The Access-Control-Allow-Headers header is used in response to a
+            # preflight request to indicate which HTTP headers can be used when
+            # making the actual request. Normally browsers do have access to
+            # Content-Type value; however, since we use application/json and
+            # it's not safe-listed value, the Content-Type header must be
+            # allowed explicitly.
+            add_header 'Access-Control-Allow-Headers' 'Content-Type';
+
+            # The Access-Control-Max-Age response header indicates how long the
+            # results of a preflight request can be cached (in seconds).
+            add_header 'Access-Control-Max-Age' 3600;
+
+            # According to RFC 7230, 204 No Content does not require
+            # Content-Type and Content-Length to be set; even more, the latter
+            # must be omitted.
+            return 204;
         }
+
+        # The Access-Control-Allow-Origin response header indicates whether
+        # the response can be shared with resources with the given origin.
+        # In other words, browsers will fail to make a request if the
+        # domain of the page from which the request is initiated does not
+        # match one specified here.
+        add_header 'Access-Control-Allow-Origin' '*';
+
+        # The Access-Control-Expose-Headers header lets a server whitelist
+        # headers that browsers are allowed to access. By default, only the
+        # following "simple" headers are exposed:
+        #
+        #  * Cache-Control
+        #  * Content-Language
+        #  * Content-Type
+        #  * Expires
+        #  * Last-Modified
+        #  * Pragma
+        add_header 'Access-Control-Expose-Headers' 'Link';
 
         # set the appropriate headers, so that the upstream knowns it's deployed behind
         # a reverse proxy (e.g. so that it can generate the correct links)
