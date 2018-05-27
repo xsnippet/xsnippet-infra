@@ -42,6 +42,12 @@ server {
         proxy_pass http://xsnippet_web_backend/snippets/$1/raw;
     }
 
+    # return the dynamic config, if it exists; otherwise, return 404, that will be handled by the SPA
+    # (note, that we only need this because we normally convert all 404s to be 200s and return the SPA code below)
+    location /conf.json {
+        try_files /conf.json =404;
+    }
+
     location / {
         error_page 404 =200 /index.html;
 
