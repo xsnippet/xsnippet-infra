@@ -1,0 +1,3 @@
+ansible/all-in-one/*.retry
+contrib/vagrant/*.log
+contrib/vagrant/.vagrant
