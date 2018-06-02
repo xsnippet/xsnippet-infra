@@ -1,0 +1,9 @@
+sudo: required
+dist: xenial
+language: python
+
+install:
+  - pip install ansible
+
+script:
+  - ansible-playbook -vv --inventory "xsnippet," --connection=local ansible/all-in-one/deploy.yaml
