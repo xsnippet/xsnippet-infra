@@ -65,6 +65,11 @@
 
 - hosts: xsnippet
   vars:
+    access_log_format: '%{X-Real-IP}i "%r" %s %b %{User-Agent}i" %Tf'
+    xsnippet_host: "0.0.0.0"
+    xsnippet_port: 8000
+    xsnippet_auth_secret: ""
+    xsnippet_syntaxes: "{{ lookup('file', 'configs/syntaxes.txt').split('\n') }}"
     # nginx will be configured to serve both API and SPA on the same port (80) under different server names
     xsnippet_api_server_name: api.xsnippet.org
     xsnippet_spa_server_name: xsnippet.org
@@ -127,14 +132,6 @@
         src: /tmp/xsnippet-web.tar-gz
         dest: "/home/xsnippet/xsnippet-web"
         remote_src: yes
-
-    - name: prepare the config file
-      template:
-        src: configs/xsnippet-api.conf.j2
-        dest: "/home/xsnippet/xsnippet-api.conf"
-        mode: 0600
-        owner: xsnippet
-        group: xsnippet
 
     - name: prepare the webserver config for API
       template:

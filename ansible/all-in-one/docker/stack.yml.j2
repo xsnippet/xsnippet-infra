@@ -16,10 +16,13 @@ services:
 
   api:
     image: {{ xsnippet_api_image }}
-    configs:
-      - source: api_config
-        target: /etc/xsnippet-api.conf
-        mode: 0600
+    environment:
+      - XSNIPPET_SERVER_HOST={{ xsnippet_host }}
+      - XSNIPPET_SERVER_PORT={{ xsnippet_port }}
+      - XSNIPPET_SERVER_ACCESS_LOG_FORMAT={{ access_log_format }}
+      - XSNIPPET_DATABASE_CONNECTION_URI=mongodb://db:27017/xsnippet
+      - XSNIPPET_AUTH_SECRET={{ xsnippet_auth_secret }}
+      - XSNIPPET_SNIPPET_SYNTAXES={{ xsnippet_syntaxes|join(',') }}
     deploy:
       replicas: 2
       restart_policy:
@@ -36,7 +39,7 @@ services:
     image: {{ xsnippet_web_backend_image }}
     environment:
       - XSNIPPET_API_URL=http://{{ xsnippet_api_server_name }}
-      - ACCESS_LOG_FORMAT='%{X-Real-IP}i "%r" %s %b %{User-Agent}i" %Tf'
+      - ACCESS_LOG_FORMAT={{ access_log_format }}
     deploy:
       replicas: 1
       restart_policy:
@@ -99,8 +102,6 @@ volumes:
   db_state:
 
 configs:
-  api_config:
-    file: ./xsnippet-api.conf
   web_api_config:
     file: ./xsnippet-webserver-api.conf
   web_spa_config:
