@@ -1,0 +1,34 @@
+- copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/
+  loop:
+    - http.socket
+    - http.service
+  notify:
+    - Reload systemd
+
+- copy:
+    src: "{{ item }}"
+    dest: /etc/systemd/system/
+  when: xsnippet_api_https or xsnippet_spa_https
+  loop:
+    - https.socket
+    - https.service
+  notify:
+    - Reload systemd
+
+- name: Reload systemd
+  meta: flush_handlers
+
+- name: proxy 80 -> localhost:8080
+  systemd:
+    name: "http.socket"
+    enabled: yes
+    state: started
+
+- name: 443 -> localhost:8443
+  systemd:
+    name: "https.socket"
+    enabled: yes
+    state: started
+  when: xsnippet_api_https or xsnippet_spa_https
