@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ version/4 ]
   pull_request:
-    branches: [ master ]
+    branches: [ version/4 ]
 
 defaults:
   run:
