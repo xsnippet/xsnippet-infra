@@ -1,6 +1,4 @@
-upstream xsnippet_web_backend {
-    server web_backend:5000;
-}
+js_import conf.d/xsnippet_api.js;
 
 {% if xsnippet_spa_https and xsnippet_spa_https_redirect %}
 # redirect all HTTP requests to HTTPS
@@ -38,8 +36,8 @@ server {
     gzip_types text/plain text/css application/json application/x-javascript text/javascript application/javascript image/svg+xml;
     gzip_min_length 1024;
 
-    location ~ ^/(\d+)/raw/?$ {
-        proxy_pass http://xsnippet_web_backend/snippets/$1/raw;
+    location ~ ^/([a-zA-Z0-9]+)/raw/?$ {
+        js_content xsnippet_api.get_raw_snippet;
     }
 
     # return the dynamic config, if it exists; otherwise, return 404, that will be handled by the SPA

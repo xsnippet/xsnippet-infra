@@ -23,7 +23,7 @@ jobs:
 
       - name: Run the all-in-one playbook
         run: |
-          ansible-playbook -vv --inventory "xsnippet," --connection=local ansible/all-in-one/deploy.yaml
+          ansible-playbook --extra-vars '{"require_cgroupsv2": false, "xsnippet_api_https_redirect": false}' -vv --inventory "xsnippet," --connection=local ansible/all-in-one/site.yml
 
       - name: Smoke test
         run: |

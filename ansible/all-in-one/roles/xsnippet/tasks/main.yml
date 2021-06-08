@@ -1,0 +1,139 @@
+- name: create user xsnippet
+  user:
+    name: xsnippet
+    createhome: yes
+  become: true
+  become_user: root
+
+- name: allow xsnippet's systemd units to start w/o an explicit login session
+  command: "loginctl enable-linger xsnippet"
+  args:
+    creates: "/var/lib/systemd/linger/xsnippet"
+  become: true
+  become_user: root
+
+- stat:
+    path: "{{ xsnippet_api_ssl_cert }}"
+  register: xsnippet_api_ssl_cert_file
+- stat:
+    path: "{{ xsnippet_api_ssl_key }}"
+  register: xsnippet_api_ssl_key_file
+- name: serve xsnippet-api over HTTPS if a certificate/key pair has been provided
+  set_fact:
+    xsnippet_api_https: "{{ xsnippet_api_ssl_cert_file.stat.exists and xsnippet_api_ssl_key_file.stat.exists }}"
+
+- stat:
+    path: "{{ xsnippet_spa_ssl_cert }}"
+  register: xsnippet_spa_ssl_cert_file
+- stat:
+    path: "{{ xsnippet_spa_ssl_key }}"
+  register: xsnippet_spa_ssl_key_file
+- name: serve xsnippet-web over HTTPS, if a certificate/key pair has been provided
+  set_fact:
+    xsnippet_spa_https: "{{ xsnippet_spa_ssl_cert_file.stat.exists and xsnippet_spa_ssl_key_file.stat.exists }}"
+
+- file:
+    path: "/home/xsnippet/xsnippet-web"
+    state: directory
+- file:
+    path: "/home/xsnippet/data"
+    state: directory
+- file:
+    path: "/home/xsnippet/nginx-conf.d"
+    state: directory
+- file:
+    path: "/home/xsnippet/.config/systemd/user"
+    state: directory
+
+# Due to the issue [1], we cannot use 'unarchive' module to download and
+# extract the archive while under 'become_user' mode; there's something
+# increadibly wrong about tmpdir manipulating. Therefore, we do two-step
+# action: first, download the archive; second, extract it to the target
+# directory.
+#
+# [1]: https://github.com/ansible/ansible/issues/38672
+- name: prepare xsnippet-web assets
+  get_url:
+    url: "{{ xsnippet_web_assets }}"
+    dest: /tmp/xsnippet-web.tar-gz
+    force: true
+- unarchive:
+    src: /tmp/xsnippet-web.tar-gz
+    dest: "/home/xsnippet/xsnippet-web"
+    remote_src: yes
+
+- name: prepare the webserver config for API
+  template:
+    src:  xsnippet-webserver-api.conf.j2
+    dest: "/home/xsnippet/nginx-conf.d/xsnippet-webserver-api.conf"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+- name: prepare the webserver config for SPA
+  template:
+    src:  xsnippet-webserver-spa.conf.j2
+    dest: "/home/xsnippet/nginx-conf.d/xsnippet-webserver-spa.conf"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+- template:
+    src: conf.json.j2
+    dest: "/home/xsnippet/xsnippet-web/conf.json"
+    mode: 0644
+    owner: xsnippet
+    group: xsnippet
+- name: prepare the webserver JS handlers
+  template:
+    src: xsnippet_api.js.j2
+    dest: "/home/xsnippet/nginx-conf.d/xsnippet_api.js"
+    mode: 0644
+    owner: xsnippet
+    group: xsnippet
+- copy:
+    src: nginx.conf
+    dest: "/home/xsnippet/"
+
+- name: prepare the pod config
+  template:
+    src: xsnippet.yml.j2
+    dest: "/home/xsnippet/xsnippet.yml"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+
+- name: check if pod-xsnippet.service exists
+  stat:
+    path: "/home/xsnippet/.config/systemd/user/pod-xsnippet.service"
+  register: xsnippet_service
+- set_fact:
+    xsnippet_service_exists: "{{ xsnippet_service.stat.isreg is defined and xsnippet_service.stat.isreg }}"
+
+- name: stop xsnippet
+  systemd:
+    name: pod-xsnippet
+    enabled: no
+    state: stopped
+    scope: user
+  when: xsnippet_service_exists
+
+- name: ensure there is no xsnippet pod
+  command: "podman pod rm --force --ignore xsnippet"
+  args:
+    chdir: "/home/xsnippet"
+
+- name: (re-)create the xsnippet pod
+  command: "podman play kube --start=false --log-driver=journald xsnippet.yml"
+  args:
+    chdir: "/home/xsnippet"
+
+- name: generate systemd units
+  command: "podman generate systemd --files --name xsnippet"
+  args:
+    chdir: "/home/xsnippet/.config/systemd/user"
+
+- name: start xsnippet
+  systemd:
+    name: pod-xsnippet
+    enabled: yes
+    state: restarted
+    scope: user
