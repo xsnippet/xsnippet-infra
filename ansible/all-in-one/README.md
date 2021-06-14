@@ -46,3 +46,6 @@ Variables
 | `xsnippet_db_external_volume` | Disk that should be used for storing the DB state     |
 | `xsnippet_web_image`          | Docker image of xsnippet-web to be used               |
 | `xsnippet_web_assets`         | URL of the SPA tarball release to be used             |
+| `xsnippet_api_https_enabled`  | secure backend API with TLS (via let's encrypt)       |
+| `xsnippet_spa_https_enabled`  | secure frontend SPA with TLS (via let's encrypt)      |
+| `digitalocean_token`          | digitalocean token used by let's encrypt challenge    |

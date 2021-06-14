@@ -2,6 +2,6 @@
 - hosts: xsnippet
   roles:
     - { role: firewall, become: yes }
+    - { role: certbot, become: yes }
     - { role: podman, become: yes }
     - { role: xsnippet, become: yes, become_user: xsnippet }
-    - { role: sockets, become: yes }

@@ -39,7 +39,7 @@ spec:
         - mountPath: /etc/nginx/nginx.conf
           name: nginx-conf
           readOnly: true
-{% if xsnippet_api_https %}
+{% if xsnippet_api_https_enabled %}
         - mountPath: /etc/nginx/xsnippet_api_ssl.cert
           name: api-ssl-cert
           readOnly: true
@@ -47,7 +47,7 @@ spec:
           name: api-ssl-key
           readOnly: true
 {% endif %}
-{% if xsnippet_spa_https %}
+{% if xsnippet_spa_https_enabled %}
         - mountPath: /etc/nginx/xsnippet_spa_ssl.cert
           name: spa-ssl-cert
           readOnly: true
@@ -59,7 +59,7 @@ spec:
         - containerPort: 80
           hostPort: {{ xsnippet_proxy_http_port|default('8080') }}
           protocol: TCP
-{% if xsnippet_api_https or xsnippet_spa_https %}
+{% if xsnippet_api_https_enabled or xsnippet_spa_https_enabled %}
         - containerPort: 443
           hostPort: {{ xsnippet_proxy_https_port|default('8443') }}
           protocol: TCP
@@ -81,7 +81,7 @@ spec:
       hostPath:
         path: /home/xsnippet/nginx.conf
         type: File
-{% if xsnippet_api_https %}
+{% if xsnippet_api_https_enabled %}
     - name: api-ssl-cert
       hostPath:
         path: "{{ xsnippet_api_ssl_cert_file }}"
@@ -91,7 +91,7 @@ spec:
         path: "{{ xsnippet_api_ssl_key_file }}"
         type: File
 {% endif %}
-{% if xsnippet_spa_https %}
+{% if xsnippet_spa_https_enabled %}
     - name: spa-ssl-cert
       hostPath:
         path: "{{ xsnippet_spa_ssl_cert_file }}"
