@@ -37,11 +37,12 @@ $ ansible-playbook -i path_to_inventory site.yml
 Variables
 =========
 
-| Name                         | Description                                           |
-| ---------------------------- | ----------------------------------------------------- |
-| `xsnippet_api_server_name`   | server name (aka, virtual host) of the backend API    |
-| `xsnippet_spa_server_name`   | server name (aka, virtual host) of the frontent SPA   |
-| `xsnippet_api_image`         | Docker image of xsnippet-api to be used               |
-| `xsnippet_db_image`          | Docker image of xsnippet-db to be used                |
-| `xsnippet_web_image`         | Docker image of xsnippet-web to be used               |
-| `xsnippet_web_assets`        | URL of the SPA tarball release to be used             |
+| Name                          | Description                                           |
+| ----------------------------- | ----------------------------------------------------- |
+| `xsnippet_api_server_name`    | server name (aka, virtual host) of the backend API    |
+| `xsnippet_spa_server_name`    | server name (aka, virtual host) of the frontent SPA   |
+| `xsnippet_api_image`          | Docker image of xsnippet-api to be used               |
+| `xsnippet_db_image`           | Docker image of xsnippet-db to be used                |
+| `xsnippet_db_external_volume` | Disk that should be used for storing the DB state     |
+| `xsnippet_web_image`          | Docker image of xsnippet-web to be used               |
+| `xsnippet_web_assets`         | URL of the SPA tarball release to be used             |
