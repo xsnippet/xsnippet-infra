@@ -12,6 +12,16 @@
   become: true
   become_user: root
 
+- name: create and mount the external volume for storing xsnippet-db's data (if it is configured)
+  include_role:
+    name: volume
+    apply:
+      become: yes
+      become_user: root
+  vars:
+    external_volume: "{{ xsnippet_db_external_volume }}"
+  when: xsnippet_db_external_volume
+
 - stat:
     path: "{{ xsnippet_api_ssl_cert }}"
   register: xsnippet_api_ssl_cert_file
@@ -36,7 +46,7 @@
     path: "/home/xsnippet/xsnippet-web"
     state: directory
 - file:
-    path: "/home/xsnippet/data"
+    path: "/home/xsnippet/data/db"
     state: directory
 - file:
     path: "/home/xsnippet/nginx-conf.d"
@@ -44,6 +54,7 @@
 - file:
     path: "/home/xsnippet/.config/systemd/user"
     state: directory
+
 
 # Due to the issue [1], we cannot use 'unarchive' module to download and
 # extract the archive while under 'become_user' mode; there's something

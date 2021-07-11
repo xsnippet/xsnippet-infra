@@ -9,6 +9,7 @@ xsnippet_db_name: xsnippet
 xsnippet_db_user: xsnippet
 xsnippet_db_password: xsnippet
 xsnippet_db_port: 5432
+xsnippet_db_external_volume: ""
 
 # application configuration
 xsnippet_syntaxes: "{{ lookup('file', 'syntaxes.txt').split('\n') }}"

@@ -1,0 +1,39 @@
+- name: check if the external volume already has a filesystem
+  command: "lsblk --fs --json {{ external_volume }}"
+  register: lsblk
+
+- set_fact:
+    external_volume_has_fs: "{{ (lsblk.stdout | from_json)['blockdevices'][0]['fstype'] is not none }}"
+
+- name: if not, create a new filesystem
+  command: "mkfs.{{ external_volume_fs }} {{ external_volume }}"
+  when: not external_volume_has_fs
+
+- name: create the target directory
+  file:
+    path: "{{ external_volume_mountpoint }}"
+    state: directory
+    owner: "{{ external_volume_owner }}"
+    group: "{{ external_volume_owner }}"
+    mode: "{{ external_volume_mode }}"
+
+- name: create and activate the mountpoint
+  mount:
+    path: "{{ external_volume_mountpoint }}"
+    src: "{{ external_volume }}"
+    fstype: "{{ external_volume_fs }}"
+    opts: "{{ external_volume_mount_options }}"
+    state: mounted
+
+- name: ensure the mounted fs has the correct permissions
+  file:
+    path: "{{ external_volume_mountpoint }}"
+    state: directory
+    owner: "{{ external_volume_owner }}"
+    group: "{{ external_volume_owner }}"
+    mode: "{{ external_volume_mode }}"
+    recurse: true
+  # we need to execute this step only once, as root-less Podman will update
+  # uids/gids on all files the first time xsnippet-db is started, and we don't
+  # want to mess with that
+  when: not external_volume_has_fs
