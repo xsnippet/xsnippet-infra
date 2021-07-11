@@ -10,7 +10,7 @@
 - copy:
     src: "{{ item }}"
     dest: /etc/systemd/system/
-  when: xsnippet_api_https or xsnippet_spa_https
+  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled
   loop:
     - https.socket
     - https.service
@@ -31,4 +31,4 @@
     name: "https.socket"
     enabled: yes
     state: started
-  when: xsnippet_api_https or xsnippet_spa_https
+  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled

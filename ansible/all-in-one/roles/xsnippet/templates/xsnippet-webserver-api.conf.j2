@@ -2,7 +2,7 @@ upstream xsnippet_api {
     server localhost:8000;
 }
 
-{% if xsnippet_api_https and xsnippet_api_https_redirect %}
+{% if xsnippet_api_https_enabled and xsnippet_api_https_redirect %}
 # redirect all HTTP requests to HTTPS
 server {
     listen 80;
@@ -15,12 +15,12 @@ server {
 {% endif %}
 
 server {
-    {% if not (xsnippet_api_https_redirect and xsnippet_api_https) %}
+    {% if not (xsnippet_api_https_redirect and xsnippet_api_https_enabled) %}
     # if redirects to HTTPS are not enforced, serve the content over HTTP as well
     listen 80;
     {% endif %}
 
-    {% if xsnippet_api_https %}
+    {% if xsnippet_api_https_enabled %}
     listen 443 ssl;
     ssl_certificate     /etc/nginx/xsnippet_api_ssl.cert;
     ssl_certificate_key /etc/nginx/xsnippet_api_ssl.key;
