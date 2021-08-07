@@ -22,8 +22,9 @@ access_log_format: '%{X-Real-IP}i "%r" %s %b %{User-Agent}i" %Tf'
 
 # SSL/TLS configuration
 xsnippet_api_https_redirect: true
-xsnippet_api_ssl_cert: /home/xsnippet/xsnippet_api_ssl.cert
-xsnippet_api_ssl_key: /home/xsnippet/xsnippet_api_ssl.key
+xsnippet_api_https_enabled: true
 xsnippet_spa_https_redirect: true
-xsnippet_spa_ssl_cert: /home/xsnippet/xsnippet_spa_ssl.cert
-xsnippet_spa_ssl_key: /home/xsnippet/xsnippet_spa_ssl.key
+xsnippet_spa_https_enabled: true
+
+# Digitalocean token that can be used by certbot to generate SSL.
+digitalocean_token: "{{ lookup('env', 'DIGITALOCEAN_TOKEN') | default('', True) }}"

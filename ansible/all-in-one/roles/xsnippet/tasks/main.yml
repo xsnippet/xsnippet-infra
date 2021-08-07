@@ -22,26 +22,6 @@
     external_volume: "{{ xsnippet_db_external_volume }}"
   when: xsnippet_db_external_volume
 
-- stat:
-    path: "{{ xsnippet_api_ssl_cert }}"
-  register: xsnippet_api_ssl_cert_file
-- stat:
-    path: "{{ xsnippet_api_ssl_key }}"
-  register: xsnippet_api_ssl_key_file
-- name: serve xsnippet-api over HTTPS if a certificate/key pair has been provided
-  set_fact:
-    xsnippet_api_https: "{{ xsnippet_api_ssl_cert_file.stat.exists and xsnippet_api_ssl_key_file.stat.exists }}"
-
-- stat:
-    path: "{{ xsnippet_spa_ssl_cert }}"
-  register: xsnippet_spa_ssl_cert_file
-- stat:
-    path: "{{ xsnippet_spa_ssl_key }}"
-  register: xsnippet_spa_ssl_key_file
-- name: serve xsnippet-web over HTTPS, if a certificate/key pair has been provided
-  set_fact:
-    xsnippet_spa_https: "{{ xsnippet_spa_ssl_cert_file.stat.exists and xsnippet_spa_ssl_key_file.stat.exists }}"
-
 - file:
     path: "/home/xsnippet/xsnippet-web"
     state: directory
@@ -54,7 +34,85 @@
 - file:
     path: "/home/xsnippet/.config/systemd/user"
     state: directory
+- file:
+    path: "/home/xsnippet/.config/letsencrypt"
+    state: directory
+  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled
 
+- name: prepare the certbot config
+  template:
+    src:  certbot.ini.j2
+    dest: "/home/xsnippet/.config/letsencrypt/cli.ini"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled
+
+- name: prepare the certbot-dns-digitalocean config
+  template:
+    src:  dns-digitalocean-credentials.ini.j2
+    dest: "/home/xsnippet/.config/letsencrypt/dns-digitalocean-credentials.ini"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled
+
+- name: generate ssl for {{ xsnippet_api_server_name }}
+  command: certbot certonly --domains {{ xsnippet_api_server_name }}
+  args:
+    creates: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_api_server_name }}/*.pem"
+  when: xsnippet_api_https_enabled
+
+- name: generate ssl for {{ xsnippet_spa_server_name }}
+  command: certbot certonly --domains {{ xsnippet_spa_server_name }}
+  args:
+    creates: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}/*.pem"
+  when: xsnippet_spa_https_enabled
+
+- stat:
+    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_api_server_name }}/fullchain.pem"
+  register: xsnippet_api_ssl_cert_file
+  when: xsnippet_api_https_enabled
+
+- stat:
+    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_api_server_name }}/privkey.pem"
+  register: xsnippet_api_ssl_key_file
+  when: xsnippet_api_https_enabled
+
+- stat:
+    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}/fullchain.pem"
+  register: xsnippet_spa_ssl_cert_file
+  when: xsnippet_spa_https_enabled
+
+- stat:
+    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}/privkey.pem"
+  register: xsnippet_spa_ssl_key_file
+  when: xsnippet_spa_https_enabled
+
+# Since CERT/PKEY-s we deal with are symlinks, we have to resolve them into
+# target paths before trying to mount them into containers.
+- set_fact:
+    xsnippet_api_ssl_cert_file: "{{ xsnippet_api_ssl_cert_file.stat.lnk_source }}"
+    xsnippet_api_ssl_key_file: "{{ xsnippet_api_ssl_key_file.stat.lnk_source }}"
+    xsnippet_spa_ssl_cert_file: "{{ xsnippet_spa_ssl_cert_file.stat.lnk_source }}"
+    xsnippet_spa_ssl_key_file: "{{ xsnippet_spa_ssl_key_file.stat.lnk_source }}"
+  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled
+
+- name: prepare the certbot systemd units
+  copy:
+    src: "{{ item }}"
+    dest: "/home/xsnippet/.config/systemd/user/"
+    remote_src: yes
+  loop:
+    - /lib/systemd/system/certbot.service
+    - /lib/systemd/system/certbot.timer
+
+- name: enable the certbot renew periodic timer
+  systemd:
+    name: certbot.timer
+    enabled: yes
+    state: restarted
+    scope: user
 
 # Due to the issue [1], we cannot use 'unarchive' module to download and
 # extract the archive while under 'become_user' mode; there's something
@@ -148,3 +206,56 @@
     enabled: yes
     state: restarted
     scope: user
+
+- name: proxy HTTP and HTTPS from host to containers
+  include_role:
+    name: sockets
+    apply:
+      become: yes
+      become_user: root
+
+- name: systemd unit - restart {{ restart_service_name }} on SSL renewal
+  vars:
+    restart_service_name: container-xsnippet-web.service
+    watch_path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_api_server_name }}"
+  template:
+    src: "{{ item }}"
+    dest: "/home/xsnippet/.config/systemd/user/xsnippet-api-{{ item | splitext | first }}"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+  loop:
+    - cert-watcher.service.j2
+    - cert-watcher.path.j2
+  when: xsnippet_api_https_enabled
+
+- name: systemd unit - restart {{ restart_service_name }} on SSL renewal
+  vars:
+    restart_service_name: container-xsnippet-web.service
+    watch_path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}"
+  template:
+    src: "{{ item }}"
+    dest: "/home/xsnippet/.config/systemd/user/xsnippet-web-{{ item | splitext | first }}"
+    mode: 0600
+    owner: xsnippet
+    group: xsnippet
+  loop:
+    - cert-watcher.service.j2
+    - cert-watcher.path.j2
+  when: xsnippet_spa_https_enabled
+
+- name: watch for SSL renewal and restart xsnippet-api if detected
+  systemd:
+    name: xsnippet-api-cert-watcher.path
+    enabled: yes
+    state: restarted
+    scope: user
+  when: xsnippet_api_https_enabled
+
+- name: watch for SSL renewal and restart xsnippet-web if detected
+  systemd:
+    name: xsnippet-web-cert-watcher.path
+    enabled: yes
+    state: restarted
+    scope: user
+  when: xsnippet_spa_https_enabled
