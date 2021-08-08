@@ -34,7 +34,7 @@ jobs:
           ANSIBLE_SSH_HOST: xsnippet.org
           ANSIBLE_SSH_USER: root
           ANSIBLE_INVENTORY_PATH: ${{ runner.temp }}/inventory.ini
-          ANSIBLE_PLAYBOOK_PATH: ansible/all-in-one/site.yml
+          ANSIBLE_PLAYBOOK_PATH: ansible/site.yml
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
           VOLUME_ID: /dev/disk/by-id/scsi-0DO_Volume_volume-fra1-02
         run: |
