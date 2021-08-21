@@ -16,8 +16,8 @@ xsnippet_syntaxes: "{{ lookup('file', 'syntaxes.txt').split('\n') }}"
 xsnippet_database_url: "postgresql://{{ xsnippet_db_user }}:{{ xsnippet_db_password }}@127.0.0.1:{{ xsnippet_db_port}}/{{ xsnippet_db_name }}"
 
 # reverse-proxy configuration
-xsnippet_api_server_name: api.xsnippet.org
-xsnippet_spa_server_name: xsnippet.org
+xsnippet_api_server_name: ""
+xsnippet_spa_server_name: ""
 
 # SSL/TLS configuration
 xsnippet_api_https_redirect: true
@@ -26,4 +26,4 @@ xsnippet_spa_https_redirect: true
 xsnippet_spa_https_enabled: true
 
 # Digitalocean token that can be used by certbot to generate SSL.
-xsnippet_digitalocean_token: "{{ lookup('env', 'DIGITALOCEAN_TOKEN') | default('', True) }}"
+xsnippet_digitalocean_token: ""

@@ -1,0 +1,8 @@
+---
+
+xsnippet_api_server_name: api.xsnippet.local
+xsnippet_spa_server_name: xsnippet.local
+xsnippet_api_https_enabled: false
+xsnippet_spa_https_enabled: false
+xsnippet_db_external_volume: false
+podman_require_cgroupsv2: false

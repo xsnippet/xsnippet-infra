@@ -1,4 +1,5 @@
 ---
+
 - hosts: xsnippet
   roles:
     - { role: firewall, become: yes }
