@@ -18,7 +18,6 @@ xsnippet_database_url: "postgresql://{{ xsnippet_db_user }}:{{ xsnippet_db_passw
 # reverse-proxy configuration
 xsnippet_api_server_name: api.xsnippet.org
 xsnippet_spa_server_name: xsnippet.org
-access_log_format: '%{X-Real-IP}i "%r" %s %b %{User-Agent}i" %Tf'
 
 # SSL/TLS configuration
 xsnippet_api_https_redirect: true
