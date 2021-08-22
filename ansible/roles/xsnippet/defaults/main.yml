@@ -26,4 +26,4 @@ xsnippet_spa_https_redirect: true
 xsnippet_spa_https_enabled: true
 
 # Digitalocean token that can be used by certbot to generate SSL.
-digitalocean_token: "{{ lookup('env', 'DIGITALOCEAN_TOKEN') | default('', True) }}"
+xsnippet_digitalocean_token: "{{ lookup('env', 'DIGITALOCEAN_TOKEN') | default('', True) }}"

@@ -23,7 +23,7 @@ jobs:
 
       - name: Run the all-in-one playbook
         run: |
-          ansible-playbook --extra-vars '{"require_cgroupsv2": false, "xsnippet_api_https_enabled": false, "xsnippet_spa_https_enabled": false}' -vv --inventory "xsnippet," --connection=local ansible/site.yml
+          ansible-playbook --extra-vars '{"podman_require_cgroupsv2": false, "xsnippet_api_https_enabled": false, "xsnippet_spa_https_enabled": false}' -vv --inventory "xsnippet," --connection=local ansible/site.yml
 
       - name: Smoke test
         run: |

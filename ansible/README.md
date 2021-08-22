@@ -48,4 +48,4 @@ Variables
 | `xsnippet_web_assets`         | URL of the SPA tarball release to be used             |
 | `xsnippet_api_https_enabled`  | secure backend API with TLS (via let's encrypt)       |
 | `xsnippet_spa_https_enabled`  | secure frontend SPA with TLS (via let's encrypt)      |
-| `digitalocean_token`          | digitalocean token used by let's encrypt challenge    |
+| `xsnippet_digitalocean_token` | digitalocean token used by let's encrypt challenge    |
