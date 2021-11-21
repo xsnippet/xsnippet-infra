@@ -69,35 +69,6 @@
     creates: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}/*.pem"
   when: xsnippet_spa_https_enabled
 
-- stat:
-    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_api_server_name }}/fullchain.pem"
-  register: xsnippet_api_ssl_cert_file
-  when: xsnippet_api_https_enabled
-
-- stat:
-    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_api_server_name }}/privkey.pem"
-  register: xsnippet_api_ssl_key_file
-  when: xsnippet_api_https_enabled
-
-- stat:
-    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}/fullchain.pem"
-  register: xsnippet_spa_ssl_cert_file
-  when: xsnippet_spa_https_enabled
-
-- stat:
-    path: "/home/xsnippet/.config/letsencrypt/live/{{ xsnippet_spa_server_name }}/privkey.pem"
-  register: xsnippet_spa_ssl_key_file
-  when: xsnippet_spa_https_enabled
-
-# Since CERT/PKEY-s we deal with are symlinks, we have to resolve them into
-# target paths before trying to mount them into containers.
-- set_fact:
-    xsnippet_api_ssl_cert_file: "{{ xsnippet_api_ssl_cert_file.stat.lnk_source }}"
-    xsnippet_api_ssl_key_file: "{{ xsnippet_api_ssl_key_file.stat.lnk_source }}"
-    xsnippet_spa_ssl_cert_file: "{{ xsnippet_spa_ssl_cert_file.stat.lnk_source }}"
-    xsnippet_spa_ssl_key_file: "{{ xsnippet_spa_ssl_key_file.stat.lnk_source }}"
-  when: xsnippet_api_https_enabled or xsnippet_spa_https_enabled
-
 - name: prepare the certbot systemd units
   copy:
     src: "{{ item }}"

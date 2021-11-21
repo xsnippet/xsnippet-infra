@@ -20,8 +20,8 @@ server {
 
     {% if xsnippet_spa_https_enabled %}
     listen 443 ssl;
-    ssl_certificate     /etc/nginx/xsnippet_spa_ssl.cert;
-    ssl_certificate_key /etc/nginx/xsnippet_spa_ssl.key;
+    ssl_certificate     /etc/letsencrypt/live/{{ xsnippet_spa_server_name }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ xsnippet_spa_server_name }}/privkey.pem;
     {% endif %}
 
     server_name {{ xsnippet_spa_server_name }};

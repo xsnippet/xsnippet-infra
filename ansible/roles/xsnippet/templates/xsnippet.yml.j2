@@ -39,20 +39,9 @@ spec:
         - mountPath: /etc/nginx/nginx.conf
           name: nginx-conf
           readOnly: true
-{% if xsnippet_api_https_enabled %}
-        - mountPath: /etc/nginx/xsnippet_api_ssl.cert
-          name: api-ssl-cert
-          readOnly: true
-        - mountPath: /etc/nginx/xsnippet_api_ssl.key
-          name: api-ssl-key
-          readOnly: true
-{% endif %}
-{% if xsnippet_spa_https_enabled %}
-        - mountPath: /etc/nginx/xsnippet_spa_ssl.cert
-          name: spa-ssl-cert
-          readOnly: true
-        - mountPath: /etc/nginx/xsnippet_spa_ssl.key
-          name: spa-ssl-key
+{% if xsnippet_api_https_enabled or xsnippet_spa_https_enabled %}
+        - mountPath: /etc/letsencrypt
+          name: letsencrypt
           readOnly: true
 {% endif %}
       ports:
@@ -81,23 +70,9 @@ spec:
       hostPath:
         path: /home/xsnippet/nginx.conf
         type: File
-{% if xsnippet_api_https_enabled %}
-    - name: api-ssl-cert
+{% if xsnippet_api_https_enabled or xsnippet_spa_https_enabled %}
+    - name: letsencrypt
       hostPath:
-        path: "{{ xsnippet_api_ssl_cert_file }}"
-        type: File
-    - name: api-ssl-key
-      hostPath:
-        path: "{{ xsnippet_api_ssl_key_file }}"
-        type: File
-{% endif %}
-{% if xsnippet_spa_https_enabled %}
-    - name: spa-ssl-cert
-      hostPath:
-        path: "{{ xsnippet_spa_ssl_cert_file }}"
-        type: File
-    - name: spa-ssl-key
-      hostPath:
-        path: "{{ xsnippet_spa_ssl_key_file }}"
-        type: File
+        path: /home/xsnippet/.config/letsencrypt
+        type: Directory
 {% endif %}

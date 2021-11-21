@@ -22,8 +22,8 @@ server {
 
     {% if xsnippet_api_https_enabled %}
     listen 443 ssl;
-    ssl_certificate     /etc/nginx/xsnippet_api_ssl.cert;
-    ssl_certificate_key /etc/nginx/xsnippet_api_ssl.key;
+    ssl_certificate     /etc/letsencrypt/live/{{ xsnippet_api_server_name }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ xsnippet_api_server_name }}/privkey.pem;
     {% endif %}
 
     server_name {{ xsnippet_api_server_name }};
