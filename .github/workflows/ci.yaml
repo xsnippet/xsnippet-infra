@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on:
   push:
@@ -23,7 +23,8 @@ jobs:
 
       - name: Run the all-in-one playbook
         run: |
-          ansible-playbook --extra-vars '{"require_cgroupsv2": false, "xsnippet_api_https_enabled": false, "xsnippet_spa_https_enabled": false}' -vv --inventory "xsnippet," --connection=local ansible/all-in-one/site.yml
+          ansible-playbook -vv --inventory inventories/ci site.yml
+        working-directory: ansible
 
       - name: Smoke test
         run: |

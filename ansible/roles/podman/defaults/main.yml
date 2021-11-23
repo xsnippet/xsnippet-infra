@@ -1,2 +1,2 @@
 # whether or not this role will try to configure cgroups v2 on the host if it's not enabled
-require_cgroupsv2: true
+podman_require_cgroupsv2: true

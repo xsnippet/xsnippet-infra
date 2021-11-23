@@ -1,0 +1,2 @@
+[xsnippet]
+localhost ansible_connection=local

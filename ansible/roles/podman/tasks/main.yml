@@ -42,8 +42,8 @@
     state: present
   when: not cgroupsv2
 - command: update-grub
-  when: not cgroupsv2 and require_cgroupsv2
+  when: not cgroupsv2 and podman_require_cgroupsv2
 
 - name: Reboot the machine to apply the GRUB config changes
   reboot:
-  when: not cgroupsv2 and require_cgroupsv2
+  when: not cgroupsv2 and podman_require_cgroupsv2

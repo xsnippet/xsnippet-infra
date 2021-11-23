@@ -1,4 +1,4 @@
-name: cd
+name: CD
 
 on:
   push:
@@ -31,23 +31,13 @@ jobs:
 
       - name: Deploy to production
         env:
-          ANSIBLE_SSH_HOST: xsnippet.org
-          ANSIBLE_SSH_USER: root
-          ANSIBLE_INVENTORY_PATH: ${{ runner.temp }}/inventory.ini
-          ANSIBLE_PLAYBOOK_PATH: ansible/all-in-one/site.yml
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
-          VOLUME_ID: /dev/disk/by-id/scsi-0DO_Volume_volume-fra1-02
         run: |
-          cat > ${ANSIBLE_INVENTORY_PATH} << EOF
-          [xsnippet]
-          ${ANSIBLE_SSH_HOST} ansible_user=${ANSIBLE_SSH_USER} ansible_ssh_private_key_file=${DEPLOYMENT_SSH_KEY_PATH}
-          EOF
-
           ansible-playbook \
             -vv \
-            --extra-vars "{\"xsnippet_db_external_volume\": \"${VOLUME_ID}\"}" \
-            --inventory ${ANSIBLE_INVENTORY_PATH} \
-            ${ANSIBLE_PLAYBOOK_PATH}
+            -e ansible_ssh_private_key_file=${DEPLOYMENT_SSH_KEY_PATH} \
+            --inventory ansible/inventories/production \
+            ansible/site.yml
 
       - name: Smoke test
         run: |
