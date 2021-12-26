@@ -33,6 +33,10 @@ jobs:
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
         run: |
+          # Ensure that servers we're deploying to are known. Otherwise,
+          # Ansible may fail with host key verification error.
+          mkdir -p ~/.ssh && echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+
           ansible-playbook \
             -vv \
             -e ansible_ssh_private_key_file=${DEPLOYMENT_SSH_KEY_PATH} \
