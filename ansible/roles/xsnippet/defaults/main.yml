@@ -2,7 +2,7 @@
 xsnippet_api_image: xsnippet/xsnippet-api:latest
 xsnippet_db_image: docker.io/library/postgres:13
 xsnippet_web_image: docker.io/library/nginx:stable
-xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/v1.1.5/xsnippet-web-v1.1.5.tar.gz
+xsnippet_web_assets: https://github.com/xsnippet/xsnippet-web/releases/download/nightly/xsnippet-web.tar.gz
 
 # xsnippet-db configuration
 xsnippet_db_name: xsnippet
