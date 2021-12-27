@@ -29,6 +29,46 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
+      - id: release-params
+        name: Look up the Github release by tag/name and prepare a list of tags to be attached to the Docker image
+        run: |
+          python3 <<EOF
+          import json
+          import urllib.error as e
+          import urllib.request as r
+
+          # look up the latest stable release (if any)
+          try:
+            latest_release = json.load(r.urlopen("https://api.github.com/repos/xsnippet/xsnippet-api/releases/latest"))
+          except e.HTTPError as err:
+            if err.code != 404:
+              raise
+
+            latest_release = None
+
+          # look up the release by tag first; if not found, try to look it up by release name instead
+          try:
+            release = json.load(r.urlopen("https://api.github.com/repos/xsnippet/xsnippet-api/releases/tags/${{ github.event.inputs.release_tag }}"))
+          except e.HTTPError as err:
+            if err.code != 404:
+              raise
+
+            release = json.load(r.urlopen("https://api.github.com/repos/xsnippet/xsnippet-api/releases/${{ github.event.inputs.release_tag }}"))
+
+          # The Docker image tags should include:
+          # 1) the release tag
+          tags = set([f"{release['tag_name']}"])
+          # 2) "latest", if this is the latest stable release
+          if latest_release and latest_release['tag_name'] == release['tag_name']:
+            tags.add('latest')
+          # 3) the release name, if it is different from the git tag
+          if release['tag_name'] != '${{ github.event.inputs.release_tag }}':
+            tags.add('${{ github.event.inputs.release_tag }}')
+
+          print(f"::set-output name=release_tag::{release['tag_name']}")
+          print(f"::set-output name=image_tags::{','.join('${{ github.event.inputs.image_name }}:' + t for t in tags)}")
+          EOF
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
@@ -48,8 +88,8 @@ jobs:
         with:
           context: ./docker
           push: true
-          tags: ${{ github.event.inputs.image_name }}:${{ github.event.inputs.release_tag }}
+          tags: ${{ steps.release-params.outputs.image_tags }}
           build-args: |
             RELEASE_ARCH=${{ github.event.inputs.release_arch }}
             RELEASE_OS=${{ github.event.inputs.release_os }}
-            RELEASE_TAG=${{ github.event.inputs.release_tag }}
+            RELEASE_TAG=${{ steps.release-params.outputs.release_tag }}
