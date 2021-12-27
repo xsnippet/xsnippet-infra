@@ -1,0 +1,7 @@
+---
+
+volume_fs: ext4
+volume_mountpoint: /data
+volume_mode: u=rwx,g=rx,o=rx
+volume_mount_options: discard,defaults,noatime
+volume_binds: []

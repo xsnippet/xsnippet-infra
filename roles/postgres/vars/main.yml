@@ -1,0 +1,10 @@
+---
+
+postgres_apt_prerequisite_packages:
+  - debian-keyring
+  - debian-archive-keyring
+  - apt-transport-https
+postgres_apt_repo:
+  - deb https://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+  - deb-src https://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
+postgres_apt_repo_gpg: https://www.postgresql.org/media/keys/ACCC4CF8.asc

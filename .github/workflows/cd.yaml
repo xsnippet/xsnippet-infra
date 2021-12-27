@@ -25,13 +25,12 @@ jobs:
         env:
           DEPLOYMENT_SSH_KEY_PATH: ${{ runner.temp }}/id_ed25519
         run: |
-          echo "${{ secrets.DEPLOYMENT_SSH_KEY }}" > ${DEPLOYMENT_SSH_KEY_PATH}
-          chmod 0600 ${DEPLOYMENT_SSH_KEY_PATH}
-          echo "DEPLOYMENT_SSH_KEY_PATH=${DEPLOYMENT_SSH_KEY_PATH}" >> $GITHUB_ENV
+          echo "${{ secrets.DEPLOYMENT_SSH_KEY }}" > $DEPLOYMENT_SSH_KEY_PATH
+          chmod 0600 $DEPLOYMENT_SSH_KEY_PATH
+          echo ::set-output name=uri::$DEPLOYMENT_SSH_KEY_PATH
+        id: ssh-key
 
       - name: Deploy to production
-        env:
-          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
         run: |
           # Ensure that servers we're deploying to are known. Otherwise,
           # Ansible may fail with host key verification error.
@@ -39,9 +38,9 @@ jobs:
 
           ansible-playbook \
             -vv \
-            -e ansible_ssh_private_key_file=${DEPLOYMENT_SSH_KEY_PATH} \
-            --inventory ansible/inventories/production \
-            ansible/site.yml
+            -e ansible_ssh_private_key_file="${{ steps.ssh-key.outputs.uri }}" \
+            --inventory inventories/production \
+            site.yml
 
       - name: Smoke test
         run: |

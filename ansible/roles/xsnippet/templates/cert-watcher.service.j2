@@ -1,9 +1,0 @@
-[Unit]
-Description=Restart {{ restart_service_name }}
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/systemctl --user restart {{ restart_service_name }}
-
-[Install]
-WantedBy=multi-user.target

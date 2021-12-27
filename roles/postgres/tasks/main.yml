@@ -1,0 +1,58 @@
+---
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install apt prerequisite packages
+  ansible.builtin.apt:
+    name: "{{ postgres_apt_prerequisite_packages }}"
+    state: present
+  become: true
+
+- name: Add postgres repository signing key
+  ansible.builtin.apt_key:
+    url: "{{ postgres_apt_repo_gpg }}"
+    state: present
+  become: true
+
+- name: Add postgres repository
+  ansible.builtin.apt_repository:
+    repo: "{{ item }}"
+    state: present
+    filename: postgres
+  with_items: "{{ postgres_apt_repo }}"
+  become: true
+
+- name: Install the postgresql package
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2  # required for 'ansible.builtin.postgresql_*' modules
+    state: present
+  become: true
+
+- name: Start postgresql now and on every reboot
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: Setup postgresql databases
+  ansible.builtin.postgresql_db:
+    name: "{{ item.database }}"
+  with_items: "{{ postgres_users }}"
+  become: true
+  become_user: postgres
+
+- name: Setup postgresql users
+  ansible.builtin.postgresql_user:
+    db: "{{ item.database }}"
+    user: "{{ item.username }}"
+  with_items: "{{ postgres_users }}"
+  become: true
+  become_user: postgres

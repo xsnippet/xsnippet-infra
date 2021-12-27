@@ -1,0 +1,10 @@
+---
+
+xsnippet_api_artifact: https://github.com/xsnippet/xsnippet-api/releases/download/nightly/xsnippet-api-x86_64-linux.gz
+xsnippet_api_src_artifact: https://github.com/xsnippet/xsnippet-api/archive/refs/tags/nightly.tar.gz
+xsnippet_api_root: /opt/xsnippet-api
+xsnippet_api_src_root: "{{ (xsnippet_api_root, '.src') | path_join }}"
+xsnippet_api_user: xsnippet-api
+xsnippet_api_address: localhost
+xsnippet_api_port: 8080
+xsnippet_api_syntaxes: "{{ lookup('file', 'syntaxes.txt').splitlines() }}"

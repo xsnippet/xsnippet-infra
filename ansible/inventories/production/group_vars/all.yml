@@ -1,8 +1,0 @@
----
-
-xsnippet_api_server_name: api.xsnippet.org
-xsnippet_spa_server_name: xsnippet.org
-xsnippet_db_external_volume: /dev/disk/by-id/scsi-0DO_Volume_volume-fra1-02
-xsnippet_digitalocean_token: "{{ lookup('env', 'DIGITALOCEAN_TOKEN') }}"
-
-podman_require_cgroupsv2: true

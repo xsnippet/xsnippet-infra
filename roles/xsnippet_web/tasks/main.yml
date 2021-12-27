@@ -1,0 +1,33 @@
+---
+
+- name: Create target directory
+  ansible.builtin.file:
+    path: "{{ xsnippet_web_root }}"
+    mode: u=rwx,g=rx,o=rx
+    state: directory
+  become: true
+
+- name: Install the artifact
+  ansible.builtin.unarchive:
+    src: "{{ xsnippet_web_artifact }}"
+    dest: "{{ xsnippet_web_root }}"
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+    remote_src: true
+  become: true
+
+- name: Create runtime configuration
+  ansible.builtin.template:
+    src: conf.json.j2
+    dest: "{{ (xsnippet_web_root, 'conf.json') | path_join }}"
+    mode: u=rw,g=r,o=r
+  become: true
+
+- name: Configure caddy for xsnippet-web
+  ansible.builtin.template:
+    src: caddy.j2
+    dest: "{{ (caddy_confd_path, 'xsnippet-web.caddy') | path_join }}"
+    mode: u=rw,g=r,o=r
+  notify: caddy-restart
+  become: true

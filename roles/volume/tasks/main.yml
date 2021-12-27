@@ -1,0 +1,49 @@
+---
+
+- name: Check if the external volume already has a filesystem
+  ansible.builtin.command: "lsblk --fs --json {{ volume_device }}"
+  register: lsblk
+  changed_when: false
+
+- name: Check if the external volume already has a filesystem
+  ansible.builtin.set_fact:
+    volume_has_fs: "{{ (lsblk.stdout | from_json)['blockdevices'][0]['fstype'] is not none }}"
+
+- name: If not, create a new filesystem
+  ansible.builtin.command: "mkfs.{{ volume_fs }} {{ volume_device }}"
+  when: not volume_has_fs
+  become: true
+
+- name: Create the mount point directory
+  ansible.builtin.file:
+    path: "{{ volume_mountpoint }}"
+    state: directory
+    mode: "{{ volume_mode }}"
+  become: true
+
+- name: Create and activate the mountpoint
+  ansible.posix.mount:
+    path: "{{ volume_mountpoint }}"
+    src: "{{ volume_device }}"
+    fstype: "{{ volume_fs }}"
+    opts: "{{ volume_mount_options }}"
+    state: mounted
+  become: true
+
+- name: Create target directories for volume binds
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+    state: directory
+  with_items: "{{ volume_binds }}"
+  become: true
+
+- name: Bind target directories from volume to filesystem
+  ansible.posix.mount:
+    path: "{{ item.mountpoint }}"
+    src: "{{ item.path }}"
+    fstype: none
+    opts: bind
+    state: mounted
+  with_items: "{{ volume_binds }}"
+  become: true

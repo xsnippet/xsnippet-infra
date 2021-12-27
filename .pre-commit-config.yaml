@@ -1,0 +1,19 @@
+---
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: check-yaml
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: trailing-whitespace
+
+  - repo: https://github.com/ansible-community/ansible-lint.git
+    rev: v5.3.1
+    hooks:
+      - id: ansible-lint
+        args: [-x, meta-no-info]

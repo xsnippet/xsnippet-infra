@@ -1,0 +1,15 @@
+---
+
+argument_specs:
+  main:
+    options:
+      caddy_confd_path:
+        type: str
+        default: /etc/caddy/conf.d
+        description: |
+          The path to caddy configuration directory.
+      caddy_email:
+        type: str
+        description: |
+          Mainly used when creating an ACME account with your CA, and is highly
+          recommended in case there are problems with your certificates.

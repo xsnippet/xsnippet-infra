@@ -1,0 +1,57 @@
+---
+
+argument_specs:
+  main:
+    options:
+      volume_device:
+        type: str
+        required: true
+        description: |
+          The disk (or partition) to store the xsnippet-db's persistent state
+          on. If not specified, the data will be stored on the root FS
+          partition.
+      volume_fs:
+        type: str
+        default: ext4
+        description: |
+          The FS type that the disk (or partition) should be formatted in (mkfs
+          will be called if the target is empty).
+      volume_mountpoint:
+        type: str
+        default: /data
+        description: |
+          The path of where to mount the external volume
+      volume_mode:
+        type: str
+        default: u=rwx,g=rx,o=rx
+        description: |
+          The file access mode for the external volume mountpoint
+      volume_mount_options:
+        type: str
+        default: discard,defaults,noatime
+        description: |
+          Comma-separate list of options used when mounting the external volume
+      volume_binds:
+        type: list
+        elements: dict
+        options:
+          path:
+            type: str
+            required: true
+            description: |
+              The path to be mounted on the mount point.
+          mountpoint:
+            type: str
+            required: true
+            description: |
+              The path to the mount point.
+          mode:
+            type: str
+            required: true
+            description: |
+              The permissions the resulting 'path' directory should have.
+        default: []
+        description: |
+          The list of filesystem binds (mounts) to do. Normally used to map
+          directories from volume to other parts of the filesystem to
+          implicitly store data on volume.

@@ -1,0 +1,21 @@
+{{ xsnippet_web_server_name }} {
+  encode gzip zstd
+  log
+
+  @raw_snippet {
+    path_regexp ^/(?P<snippet_id>[a-zA-Z0-9]+)/raw/?$
+  }
+
+  handle @raw_snippet {
+    rewrite @raw_snippet /v1/snippets/{http.regexp.snippet_id}?
+    reverse_proxy localhost:8080 {
+      header_up Accept text/plain
+    }
+  }
+
+  handle {
+    root * /opt/xsnippet-web
+    try_files {path} /index.html
+    file_server
+  }
+}

@@ -1,0 +1,19 @@
+{
+  skip_install_trust
+
+  log {
+    format filter {
+      wrap json
+      fields {
+        common_log delete
+        request>headers>Authorization delete
+      }
+    }
+  }
+
+{% if caddy_email is defined %}
+  email {{ caddy_email }}
+{% endif %}
+}
+
+import {{ (caddy_confd_path, "*.caddy") | path_join }}

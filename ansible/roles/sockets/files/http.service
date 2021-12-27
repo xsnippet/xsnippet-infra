@@ -1,6 +1,0 @@
-[Unit]
-Requires=http.socket
-After=http.socket
-
-[Service]
-ExecStart=/usr/lib/systemd/systemd-socket-proxyd localhost:8080
