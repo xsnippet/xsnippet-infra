@@ -6,27 +6,23 @@ on:
     inputs:
       image_name:
         description: 'The name of the resulting Docker image'
-        required: false
         default: 'xsnippet/xsnippet-api'
       release_arch:
         description: 'The CPU architecture to use when choosing the xsnippet-api binary'
-        required: false
         default: 'x86_64'
       release_os:
         description: 'The OS to use when choosing the xsnippet-api binary'
-        required: false
         default: 'linux'
       release_tag:
         description: 'The release tag to use when choosing the xsnippet-api binary'
-        required: false
         default: 'latest'
       registry:
         description: 'The Docker registry to push the image to'
-        required: false
-        default: 'docker.io'
+        type: choice
+        options:
+          - docker.io
       registry_username:
         description: 'The Docker registry user name'
-        required: false
         default: 'xsnippetci'
 
 jobs:
@@ -39,11 +35,11 @@ jobs:
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Log into registry ${{ env.INPUT_REGISTRY }}
+      - name: Log into registry ${{ github.event.inputs.registry }}
         uses: docker/login-action@v1
         with:
-          registry: ${{ env.INPUT_REGISTRY }}
-          username: ${{ env.INPUT_REGISTRY_USERNAME }}
+          registry: ${{ github.event.inputs.registry }}
+          username: ${{ github.event.inputs.registry_username }}
           password: ${{ secrets.XSNIPPET_CI_DOCKER_HUB_PASSWORD }}
 
       - name: Build and push Docker image
@@ -52,8 +48,8 @@ jobs:
         with:
           context: ./docker
           push: true
-          tags: ${{ env.INPUT_IMAGE_NAME}}:${{ env.INPUT_RELEASE_TAG }}
+          tags: ${{ github.event.inputs.image_name }}:${{ github.event.inputs.release_tag }}
           build-args: |
-            RELEASE_ARCH=${{ env.INPUT_RELEASE_ARCH }}
-            RELEASE_OS=${{ env.INPUT_RELEASE_OS }}
-            RELEASE_TAG=${{ env.INPUT_RELEASE_TAG }}
+            RELEASE_ARCH=${{ github.event.inputs.release_arch }}
+            RELEASE_OS=${{ github.event.inputs.release_os }}
+            RELEASE_TAG=${{ github.event.inputs.release_tag }}
