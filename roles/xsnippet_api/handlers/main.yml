@@ -1,0 +1,7 @@
+---
+
+- name: xsnippet-api-restart
+  ansible.builtin.systemd:
+    name: xsnippet-api.service
+    state: restarted
+  become: true

@@ -1,0 +1,46 @@
+---
+
+argument_specs:
+  main:
+    options:
+      xsnippet_api_server_name:
+        type: str
+        required: true
+        description: |
+          The server name (domain) to serve requests from.
+      xsnippet_api_database_url:
+        type: str
+        required: true
+        description: |
+          The connection URL to database (PostgreSQL).
+      xsnippet_api_artifact:
+        type: str
+        default: https://github.com/xsnippet/xsnippet-api/releases/download/nightly/xsnippet-api-x86_64-linux.gz
+        description:
+          The artifact to deploy. Could be an HTTP(s) URL to the archive.
+      xsnippet_api_root:
+        type: str
+        default: /opt/xsnippet-api
+        description:
+          The path to the directory to install the artifact to.
+      xsnippet_api_user:
+        type: str
+        default: xsnippet-api
+        description: |
+          The user to run xsnippet-api under. If the user does not exist, it
+          will be created.
+      xsnippet_api_address:
+        type: str
+        default: localhost
+        description: |
+          The host address to bind xsnippet-api to.
+      xsnippet_api_port:
+        type: int
+        default: 8080
+        description: |
+          The port to bind xsnippet-api to.
+      xsnippet_api_syntaxes:
+        type: list
+        elements: str
+        description: |
+          The list of syntaxes to use on xsnippet-api side.

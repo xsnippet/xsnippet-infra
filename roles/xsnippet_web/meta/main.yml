@@ -1,0 +1,20 @@
+---
+
+argument_specs:
+  main:
+    options:
+      xsnippet_web_server_name:
+        type: str
+        required: true
+        description: |
+          The server name (domain) to serve requests from.
+      xsnippet_web_artifact:
+        type: str
+        default: https://github.com/xsnippet/xsnippet-web/releases/download/nightly/xsnippet-web.tar.gz
+        description:
+          The artifact to deploy. Could be an HTTP(s) URL to the archive.
+      xsnippet_web_root:
+        type: str
+        default: /opt/xsnippet-web
+        description:
+          The path to the directory to install the artifact to.

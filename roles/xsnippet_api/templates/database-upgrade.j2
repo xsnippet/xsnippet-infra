@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd "{{ xsnippet_api_src_root }}"
+exec python3 -m alembic.config upgrade head

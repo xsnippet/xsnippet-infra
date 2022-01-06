@@ -1,0 +1,22 @@
+---
+
+argument_specs:
+  main:
+    options:
+      postgres_users:
+        type: list
+        elements: dict
+        options:
+          database:
+            type: str
+            required: true
+            description: |
+              The database to create and give access to.
+          username:
+            type: str
+            required: true
+            description: |
+              The username to create with permissions to the database.
+        default: []
+        description: |
+          The list of database/username pairs to create.

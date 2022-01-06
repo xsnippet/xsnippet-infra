@@ -1,0 +1,22 @@
+---
+
+- hosts: xsnippet
+  pre_tasks:
+    # When Ansible is connected via unprivileged user, and 'become_user' is not
+    # root, Ansible requires 'acl' to share the ansible module between two
+    # unprivileged users.
+    #
+    # https://docs.ansible.com/ansible-core/2.12/user_guide/become.html#risks-of-becoming-an-unprivileged-user
+    - name: Install prerequisite packages
+      ansible.builtin.apt:
+        name: acl
+        state: present
+      become: true
+  roles:
+    - role: firewall
+    - role: volume
+      when: volume_device is defined
+    - role: postgres
+    - role: caddy
+    - role: xsnippet_api
+    - role: xsnippet_web

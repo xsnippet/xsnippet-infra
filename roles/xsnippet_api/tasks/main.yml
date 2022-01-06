@@ -1,0 +1,99 @@
+---
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install prerequisite packages
+  ansible.builtin.apt:
+    name:
+      - libpq-dev
+      - python3-alembic
+      - python3-psycopg2
+    state: present
+  become: true
+
+- name: Create '{{ xsnippet_api_user }}' user
+  ansible.builtin.user:
+    name: "{{ xsnippet_api_user }}"
+    shell: /sbin/nologin
+    home: /var/lib/{{ xsnippet_api_user }}
+  become: true
+
+- name: Create target directory for sources
+  ansible.builtin.file:
+    path: "{{ xsnippet_api_src_root }}"
+    mode: u=rwx,g=rx,o=rx
+    state: directory
+  become: true
+
+- name: Install the sources artifact
+  ansible.builtin.unarchive:
+    src: "{{ xsnippet_api_src_artifact }}"
+    dest: "{{ xsnippet_api_src_root }}"
+    extra_opts:
+      - --strip-components=1
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+    remote_src: true
+  register: xsnippet_api_src_unarchive
+  become: true
+
+- name: Create database-upgrade bin
+  ansible.builtin.template:
+    src: database-upgrade.j2
+    dest: "{{ xsnippet_api_database_upgrade_bin }}"
+    mode: u=rwx,g=rx,o=rx
+  become: true
+
+- name: Create target directory
+  ansible.builtin.file:
+    path: "{{ xsnippet_api_root }}"
+    mode: u=rwx,g=rx,o=rx
+    state: directory
+  become: true
+
+- name: Install the artifact
+  ansible.builtin.unarchive:
+    src: "{{ xsnippet_api_artifact }}"
+    dest: "{{ xsnippet_api_root }}"
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+    remote_src: true
+  notify: xsnippet-api-restart
+  become: true
+
+- name: Create runtime configuration
+  ansible.builtin.template:
+    src: systemd.env.j2
+    dest: "{{ xsnippet_api_systemd_env }}"
+    mode: u=rw,g=r,o=r
+  notify: xsnippet-api-restart
+  become: true
+
+- name: Create systemd service unit
+  ansible.builtin.template:
+    src: systemd.service.j2
+    dest: /usr/lib/systemd/system/xsnippet-api.service
+    mode: u=rw,g=r,o=r
+  become: true
+
+- name: Start xsnippet-api now and on every reboot
+  ansible.builtin.systemd:
+    name: xsnippet-api.service
+    enabled: true
+    state: started
+    daemon_reload: true
+  become: true
+
+- name: Configure caddy for xsnippet-api
+  ansible.builtin.template:
+    src: caddy.j2
+    dest: "{{ (caddy_confd_path, 'xsnippet-api.caddy') | path_join }}"
+    mode: u=rw,g=r,o=r
+  notify: caddy-restart
+  become: true

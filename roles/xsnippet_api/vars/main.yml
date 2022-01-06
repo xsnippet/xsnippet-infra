@@ -1,0 +1,5 @@
+---
+
+xsnippet_api_bin: "{{ (xsnippet_api_root, 'xsnippet-api') | path_join }}"
+xsnippet_api_database_upgrade_bin: "{{ (xsnippet_api_root, 'database-upgrade') | path_join }}"
+xsnippet_api_systemd_env: "{{ (xsnippet_api_root, '.env') | path_join }}"

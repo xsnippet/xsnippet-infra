@@ -1,9 +1,0 @@
-- name: update apt cache (if needed)
-  apt: update_cache=yes cache_valid_time=3600
-
-- name: install the certbot package
-  apt:
-    name:
-      - certbot
-      - python3-certbot-dns-digitalocean
-    state: latest

@@ -1,0 +1,28 @@
+---
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install the nftables package
+  ansible.builtin.apt:
+    name: nftables
+    state: present
+  become: true
+
+- name: Configure nftables
+  ansible.builtin.copy:
+    src: nftables.conf
+    dest: /etc/nftables.conf
+    mode: u=rw,g=r,o=r
+  notify: firewall-restart
+  become: true
+
+- name: Enable and start nftables
+  ansible.builtin.systemd:
+    name: nftables
+    state: started
+    enabled: true
+  become: true
