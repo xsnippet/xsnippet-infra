@@ -19,4 +19,5 @@
     - role: postgres
     - role: caddy
     - role: xsnippet_api
+    - role: xsnippet_raw
     - role: xsnippet_web

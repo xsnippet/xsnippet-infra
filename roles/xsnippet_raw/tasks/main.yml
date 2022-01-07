@@ -1,0 +1,9 @@
+---
+
+- name: Configure caddy for xsnippet-raw
+  ansible.builtin.template:
+    src: caddy.j2
+    dest: "{{ (caddy_confd_path, 'xsnippet-raw.caddy') | path_join }}"
+    mode: u=rw,g=r,o=r
+  notify: caddy-restart
+  become: true

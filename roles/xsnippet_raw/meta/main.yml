@@ -1,0 +1,10 @@
+---
+
+argument_specs:
+  main:
+    options:
+      xsnippet_raw_server_name:
+        type: str
+        required: true
+        description: |
+          The server name (domain) to serve requests from.

@@ -1,0 +1,9 @@
+{{ xsnippet_raw_server_name }} {
+  encode gzip zstd
+  log
+
+  rewrite * /v1/snippets{path}?
+  reverse_proxy {{ xsnippet_api_address }}:{{ xsnippet_api_port }} {
+    header_up Accept text/plain
+  }
+}
