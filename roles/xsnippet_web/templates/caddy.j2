@@ -6,6 +6,8 @@
     path_regexp ^/(?P<snippet_id>[a-zA-Z0-9]+)/raw/?$
   }
 
+  # DEPRECATED: As of Jan 07, 2022, this route is deprecated in favor of
+  # separate hostname: raw.xsnippet.org.
   handle @raw_snippet {
     rewrite @raw_snippet /v1/snippets/{http.regexp.snippet_id}?
     reverse_proxy localhost:8080 {

@@ -12,4 +12,5 @@ volume_device: /dev/disk/by-id/scsi-0DO_Volume_xsnippet-state
 xsnippet_api_user: xsnippet-api
 xsnippet_api_database_url: postgresql:///{{ postgres_users[0].database }}?host=/run/postgresql
 xsnippet_api_server_name: api.xsnippet.org
+xsnippet_raw_server_name: raw.xsnippet.org
 xsnippet_web_server_name: xsnippet.org

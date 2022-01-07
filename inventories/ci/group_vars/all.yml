@@ -10,4 +10,5 @@ volume_binds:
 xsnippet_api_user: xsnippet-api
 xsnippet_api_database_url: postgresql:///{{ postgres_users[0].database }}?host=/run/postgresql
 xsnippet_api_server_name: api.xsnippet.local
+xsnippet_raw_server_name: raw.xsnippet.local
 xsnippet_web_server_name: xsnippet.local
