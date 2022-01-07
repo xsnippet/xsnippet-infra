@@ -1,6 +1,8 @@
 ---
 
 caddy_email: dev@xsnippet.org
+goaccess_basicauth_username: xsnippet
+goaccess_server_name: rt.xsnippet.org
 postgres_users:
   - database: "{{ xsnippet_api_user }}"
     username: "{{ xsnippet_api_user }}"

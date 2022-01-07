@@ -22,6 +22,7 @@
     - role: xsnippet_api
     - role: xsnippet_raw
     - role: xsnippet_web
+    - role: goaccess
 
 
 - hosts: localhost

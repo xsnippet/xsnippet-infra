@@ -1,0 +1,89 @@
+---
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Install apt prerequisite packages
+  ansible.builtin.apt:
+    name: "{{ goaccess_apt_prerequisite_packages }}"
+    state: present
+  become: true
+
+- name: Add goaccess repository signing key
+  ansible.builtin.apt_key:
+    url: "{{ goaccess_apt_repo_gpg }}"
+    state: present
+  become: true
+
+- name: Add goaccess repository
+  ansible.builtin.apt_repository:
+    repo: "{{ item }}"
+    state: present
+    filename: goaccess
+  with_items: "{{ goaccess_apt_repo }}"
+  become: true
+
+- name: Install the goaccess package
+  ansible.builtin.apt:
+    name: goaccess
+    state: present
+  become: true
+
+- name: Create '{{ goaccess_user }}' user
+  ansible.builtin.user:
+    name: "{{ goaccess_user }}"
+    shell: /sbin/nologin
+    home: /var/lib/{{ goaccess_user }}
+    groups: systemd-journal
+  become: true
+
+- name: Create target directory
+  ansible.builtin.file:
+    path: "{{ goaccess_report_root }}"
+    mode: u=rwx,g=rx,o=rx
+    owner: "{{ goaccess_user }}"
+    group: "{{ goaccess_user }}"
+    state: directory
+  become: true
+
+- name: Configure goaccess
+  ansible.builtin.template:
+    src: goaccess.conf.j2
+    dest: "{{ goaccess_sysconf_path }}"
+    mode: u=rw,g=r,o=r
+  notify: goaccess-restart
+  become: true
+
+- name: Create goaccess systemd unit
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /usr/lib/systemd/system/{{ item }}
+    mode: u=rw,g=r,o=r
+  with_items:
+    - goaccess.service
+    - goaccess-input.service
+    - goaccess-input.socket
+  become: true
+
+- name: Start goaccess now and on every reboot
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+    daemon_reload: true
+  with_items:
+    - goaccess.service
+    - goaccess-input.service
+    - goaccess-input.socket
+  become: true
+
+- name: Configure caddy for goaccess
+  ansible.builtin.template:
+    src: caddy.j2
+    dest: "{{ (caddy_confd_path, 'goaccess.caddy') | path_join }}"
+    mode: u=rw,g=r,o=r
+  notify: caddy-restart
+  become: true

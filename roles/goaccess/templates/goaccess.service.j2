@@ -1,0 +1,19 @@
+[Unit]
+Description=Goaccess - fast web log analyzer and interactive viewer
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Type=simple
+User={{ goaccess_user }}
+Group={{ goaccess_user }}
+Sockets=goaccess-input.socket
+StandardInput=socket
+ExecStart=/usr/bin/goaccess - \
+    --output {{ goaccess_report_root }}/index.html \
+    --real-time-html \
+    --persist
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

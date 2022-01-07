@@ -1,0 +1,15 @@
+[Unit]
+Description=Goaccess input stream
+After=caddy.service
+Wants=caddy.service
+
+[Service]
+Type=simple
+User={{ goaccess_user }}
+Group={{ goaccess_user }}
+StandardOutput=socket
+ExecStart=journalctl -f -u caddy.service --output cat --grep http.log.access
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

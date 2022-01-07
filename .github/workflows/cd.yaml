@@ -39,5 +39,6 @@ jobs:
           ansible-playbook \
             -vv \
             -e ansible_ssh_private_key_file="${{ steps.ssh-key.outputs.uri }}" \
+            -e goaccess_basicauth_password="${{ secrets.GOACCESS_PASSWORD }}" \
             --inventory inventories/production \
             site.yml

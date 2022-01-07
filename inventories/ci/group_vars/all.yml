@@ -1,5 +1,6 @@
 ---
 
+goaccess_server_name: rt.xsnippet.local
 postgres_users:
   - database: "{{ xsnippet_api_user }}"
     username: "{{ xsnippet_api_user }}"

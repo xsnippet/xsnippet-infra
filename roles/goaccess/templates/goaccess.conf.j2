@@ -1,0 +1,9 @@
+addr {{ goaccess_address }}
+port {{ goaccess_port }}
+ws-url wss://{{ goaccess_server_name }}:443/ws
+db-path /var/lib/{{ goaccess_user }}
+log-format CADDY
+html-report-title XSnippet Visitors
+real-os true
+with-mouse true
+restore true
