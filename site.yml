@@ -12,6 +12,7 @@
         name: acl
         state: present
       become: true
+
   roles:
     - role: firewall
     - role: volume
@@ -20,3 +21,22 @@
     - role: caddy
     - role: xsnippet_api
     - role: xsnippet_web
+
+
+- hosts: localhost
+  vars:
+    _validate_certs: "{{ lookup('env', 'CI') is falsy }}"
+  tasks:
+    - name: Test that xsnippet-api is up and running
+      ansible.builtin.uri:
+        url: "https://{{ xsnippet_api_server_name }}/v1/snippets"
+        method: GET
+        status_code: 200
+        validate_certs: "{{ _validate_certs }}"
+
+    - name: Test that xsnippet-web is up and running
+      ansible.builtin.uri:
+        url: "https://{{ xsnippet_web_server_name }}"
+        method: GET
+        status_code: 200
+        validate_certs: "{{ _validate_certs }}"

@@ -41,12 +41,3 @@ jobs:
             -e ansible_ssh_private_key_file="${{ steps.ssh-key.outputs.uri }}" \
             --inventory inventories/production \
             site.yml
-
-      - name: Smoke test
-        run: |
-          for i in `seq 180`; do
-            curl https://xsnippet.org/v1/syntaxes && exit 0 || sleep 1
-          done
-
-          echo "https://xsnippet.org/v1/syntaxes is unavailable after 180s. Giving up."
-          exit 1
