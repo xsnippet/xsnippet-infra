@@ -3,6 +3,11 @@
 argument_specs:
   main:
     options:
+      postgres_backups_dir:
+        type: str
+        description: |
+          The directory where to store PostgreSQL backups.
+        default: /var/lib/postgresql-backups
       postgres_users:
         type: list
         elements: dict
@@ -17,6 +22,12 @@ argument_specs:
             required: true
             description: |
               The username to create with permissions to the database.
+          backup_schedule:
+            type: str
+            required: false
+            description: |
+              The time of when database backups should be triggered. Uses the systemd calendar event expression syntax (see man 7 systemd.time).
+              If not set, backups will not be created.
         default: []
         description: |
           The list of database/username pairs to create.

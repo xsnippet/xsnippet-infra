@@ -1,0 +1,9 @@
+[Unit]
+Description=Back up the PostgresSQL database `{{ item.database }}`
+
+[Timer]
+Unit=postgres-backups@{{ item.database }}.service
+OnCalendar={{ item.backup_schedule }}
+
+[Install]
+WantedBy=timers.target

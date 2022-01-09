@@ -1,3 +1,4 @@
 ---
 
 postgres_users: []
+postgres_backups_dir: /var/lib/postgresql-backups
