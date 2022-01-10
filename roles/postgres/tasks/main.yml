@@ -56,3 +56,26 @@
   with_items: "{{ postgres_users }}"
   become: true
   become_user: postgres
+
+- name: Add a service template that allows creating backups of postgresql databases
+  ansible.builtin.template:
+    src: postgres-backups@.service.j2
+    dest: /usr/lib/systemd/system/postgres-backups@.service
+  become: true
+
+- name: Add timers triggering backups of postgresql databases
+  ansible.builtin.template:
+    src: postgres-backups@.timer.j2
+    dest: /usr/lib/systemd/system/postgres-backups@{{ item.database }}.timer
+  with_items: "{{ postgres_users }}"
+  when: item.backup_schedule is defined and item.backup_schedule
+  become: true
+
+- name: Enable timers triggering backups of postgresql databases
+  ansible.builtin.systemd:
+    name: postgres-backups@{{ item.database }}.timer
+    state: started
+    enabled: true
+  with_items: "{{ postgres_users }}"
+  when: item.backup_schedule is defined and item.backup_schedule
+  become: true
