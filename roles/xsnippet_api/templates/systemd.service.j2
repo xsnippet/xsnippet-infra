@@ -10,6 +10,7 @@ User = {{ xsnippet_api_user }}
 Group = {{ xsnippet_api_user }}
 ExecStartPre = {{ xsnippet_api_database_upgrade_bin }}
 ExecStart = {{ xsnippet_api_bin }}
+Restart = on-failure
 
 [Install]
 WantedBy = multi-user.target

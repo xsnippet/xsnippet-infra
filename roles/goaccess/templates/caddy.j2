@@ -1,0 +1,13 @@
+{{ goaccess_server_name }} {
+  encode gzip zstd
+
+{% if goaccess_basicauth_password is defined %}
+  basicauth {
+    {{ goaccess_basicauth_username }} {{ goaccess_basicauth_password }}
+  }
+{% endif %}
+
+  reverse_proxy /ws {{ goaccess_address }}:{{ goaccess_port }}
+  root * {{ goaccess_report_root }}
+  file_server
+}

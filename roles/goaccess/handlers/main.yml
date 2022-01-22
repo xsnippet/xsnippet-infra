@@ -1,0 +1,10 @@
+---
+
+- name: goaccess-restart
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - goaccess.service
+    - goaccess-input.service
+  become: true

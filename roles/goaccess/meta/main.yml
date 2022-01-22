@@ -1,0 +1,41 @@
+---
+
+argument_specs:
+  main:
+    options:
+      goaccess_server_name:
+        type: str
+        required: true
+        description: |
+          The server name (domain) to serve requests from.
+      goaccess_report_root:
+        type: str
+        default: /opt/goaccess
+        description: |
+          The path to the directory to generate the report in. Normally is
+          served by webserver.
+      goaccess_user:
+        type: str
+        default: goaccess
+        description: |
+          The user to run goaccess under. If the user does not exist, it will
+          be created.
+      goaccess_address:
+        type: str
+        default: localhost
+        description: |
+          The host address to bind goaccess to.
+      goaccess_port:
+        type: int
+        default: 7890
+        description: |
+          The port to bind goaccess to.
+      goaccess_basicauth_username:
+        type: str
+        default: goaccess
+        description: |
+          The username to secure web access to the report with.
+      goaccess_basicauth_password:
+        type: str
+        description: |
+          The password to secure web access to the report with.

@@ -1,0 +1,7 @@
+---
+
+goaccess_report_root: /opt/goaccess
+goaccess_user: goaccess
+goaccess_address: localhost
+goaccess_port: 7890
+goaccess_basicauth_username: goaccess

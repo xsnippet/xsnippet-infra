@@ -1,0 +1,9 @@
+[Socket]
+ListenFIFO=%t/%n
+SocketUser={{ goaccess_user }}
+SocketGroup={{ goaccess_user }}
+SocketMode=0600
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target
