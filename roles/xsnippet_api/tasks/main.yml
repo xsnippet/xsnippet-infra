@@ -15,7 +15,7 @@
     state: present
   become: true
 
-- name: Create '{{ xsnippet_api_user }}' user
+- name: Create user '{{ xsnippet_api_user }}'
   ansible.builtin.user:
     name: "{{ xsnippet_api_user }}"
     shell: /sbin/nologin
@@ -64,7 +64,7 @@
     group: root
     mode: u=rwx,g=rx,o=rx
     remote_src: true
-  notify: xsnippet-api-restart
+  notify: XSnippet API restart
   become: true
 
 - name: Create runtime configuration
@@ -72,7 +72,7 @@
     src: systemd.env.j2
     dest: "{{ xsnippet_api_systemd_env }}"
     mode: u=rw,g=r,o=r
-  notify: xsnippet-api-restart
+  notify: XSnippet API restart
   become: true
 
 - name: Create systemd service unit
@@ -95,5 +95,5 @@
     src: caddy.j2
     dest: "{{ (caddy_confd_path, 'xsnippet-api.caddy') | path_join }}"
     mode: u=rw,g=r,o=r
-  notify: caddy-restart
+  notify: Caddy restart
   become: true

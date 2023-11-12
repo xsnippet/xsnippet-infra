@@ -1,6 +1,6 @@
 ---
 
-- name: firewall-restart
+- name: Firewall restart
   ansible.builtin.systemd:
     name: nftables
     state: restarted

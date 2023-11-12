@@ -1,6 +1,6 @@
 ---
 
-- name: goaccess-restart
+- name: Goaccess restart
   ansible.builtin.systemd:
     name: "{{ item }}"
     state: restarted

@@ -1,6 +1,6 @@
 ---
 
-- name: xsnippet-api-restart
+- name: XSnippet API restart
   ansible.builtin.systemd:
     name: xsnippet-api.service
     state: restarted

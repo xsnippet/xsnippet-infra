@@ -1,6 +1,7 @@
 ---
 
-- hosts: xsnippet
+- name: "Deploy a single-node XSnippet instance"
+  hosts: xsnippet
   pre_tasks:
     # When Ansible is connected via unprivileged user, and 'become_user' is not
     # root, Ansible requires 'acl' to share the ansible module between two
@@ -25,7 +26,8 @@
     - role: goaccess
 
 
-- hosts: localhost
+- name: "Smoke test"
+  hosts: localhost
   vars:
     _validate_certs: "{{ lookup('env', 'CI') is falsy }}"
   tasks:
