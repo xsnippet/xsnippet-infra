@@ -57,6 +57,17 @@
   become: true
   become_user: postgres
 
+- name: Grant users permissions to create tables in the schema `public`
+  community.postgresql.postgresql_privs:
+    db: "{{ item.database }}"
+    privs: CREATE
+    type: schema
+    objs: public
+    role: "{{ item.username }}"
+  with_items: "{{ postgres_users }}"
+  become: true
+  become_user: postgres
+
 - name: Add a service template that allows creating backups of postgresql databases
   ansible.builtin.template:
     src: postgres-backups@.service.j2
