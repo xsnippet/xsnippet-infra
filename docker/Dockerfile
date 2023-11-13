@@ -15,7 +15,7 @@ RUN mkdir /opt/xsnippet && \
 
 COPY xsnippet-api.sh /opt/xsnippet/xsnippet-api.sh
 
-ENV ROCKET_ADDRESS=localhost \
+ENV ROCKET_ADDRESS=127.0.0.1 \
     ROCKET_PORT=8000 \
     RUST_BACKTRACE=1
 EXPOSE $ROCKET_PORT

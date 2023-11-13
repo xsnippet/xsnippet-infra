@@ -31,7 +31,7 @@
     name:
       - postgresql
       - postgresql-contrib
-      - python3-psycopg2  # required for 'ansible.builtin.postgresql_*' modules
+      - python3-psycopg2  # required for 'community.postgresql.postgresql_*' modules
     state: present
   become: true
 
@@ -43,16 +43,27 @@
   become: true
 
 - name: Setup postgresql databases
-  ansible.builtin.postgresql_db:
+  community.postgresql.postgresql_db:
     name: "{{ item.database }}"
   with_items: "{{ postgres_users }}"
   become: true
   become_user: postgres
 
 - name: Setup postgresql users
-  ansible.builtin.postgresql_user:
+  community.postgresql.postgresql_user:
     db: "{{ item.database }}"
     user: "{{ item.username }}"
+  with_items: "{{ postgres_users }}"
+  become: true
+  become_user: postgres
+
+- name: Grant users permissions to create tables in the schema `public`
+  community.postgresql.postgresql_privs:
+    db: "{{ item.database }}"
+    privs: CREATE
+    type: schema
+    objs: public
+    role: "{{ item.username }}"
   with_items: "{{ postgres_users }}"
   become: true
   become_user: postgres
@@ -61,12 +72,14 @@
   ansible.builtin.template:
     src: postgres-backups@.service.j2
     dest: /usr/lib/systemd/system/postgres-backups@.service
+    mode: 'u=rw,g=r,o=r'
   become: true
 
 - name: Add timers triggering backups of postgresql databases
   ansible.builtin.template:
     src: postgres-backups@.timer.j2
     dest: /usr/lib/systemd/system/postgres-backups@{{ item.database }}.timer
+    mode: 'u=rw,g=r,o=r'
   with_items: "{{ postgres_users }}"
   when: item.backup_schedule is defined and item.backup_schedule
   become: true

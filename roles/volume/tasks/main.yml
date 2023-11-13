@@ -12,6 +12,7 @@
 - name: If not, create a new filesystem
   ansible.builtin.command: "mkfs.{{ volume_fs }} {{ volume_device }}"
   when: not volume_has_fs
+  changed_when: true
   become: true
 
 - name: Create the mount point directory

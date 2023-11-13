@@ -29,5 +29,5 @@
     src: caddy.j2
     dest: "{{ (caddy_confd_path, 'xsnippet-web.caddy') | path_join }}"
     mode: u=rw,g=r,o=r
-  notify: caddy-restart
+  notify: Caddy restart
   become: true

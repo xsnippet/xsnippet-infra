@@ -37,7 +37,7 @@
     src: caddyfile.j2
     dest: /etc/caddy/Caddyfile
     mode: u=rw,g=r,o=r
-  notify: caddy-restart
+  notify: Caddy restart
   become: true
 
 - name: Create 'conf.d' directory to store virtual hosts

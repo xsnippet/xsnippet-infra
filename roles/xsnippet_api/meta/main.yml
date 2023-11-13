@@ -31,7 +31,7 @@ argument_specs:
           will be created.
       xsnippet_api_address:
         type: str
-        default: localhost
+        default: 127.0.0.1
         description: |
           The host address to bind xsnippet-api to.
       xsnippet_api_port:

@@ -32,7 +32,7 @@
     state: present
   become: true
 
-- name: Create '{{ goaccess_user }}' user
+- name: Create user '{{ goaccess_user }}'
   ansible.builtin.user:
     name: "{{ goaccess_user }}"
     shell: /sbin/nologin
@@ -54,7 +54,7 @@
     src: goaccess.conf.j2
     dest: "{{ goaccess_sysconf_path }}"
     mode: u=rw,g=r,o=r
-  notify: goaccess-restart
+  notify: Goaccess restart
   become: true
 
 - name: Create goaccess systemd unit
@@ -85,5 +85,5 @@
     src: caddy.j2
     dest: "{{ (caddy_confd_path, 'goaccess.caddy') | path_join }}"
     mode: u=rw,g=r,o=r
-  notify: caddy-restart
+  notify: Caddy restart
   become: true
