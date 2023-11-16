@@ -15,10 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
 
       - name: Install pre-commit
         run: |
@@ -34,7 +36,7 @@ jobs:
   ansible:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Ansible
         run: |
@@ -58,7 +60,7 @@ jobs:
           dd if=/dev/zero of=$VOLUME_IMAGE bs=1M count=1024
           sudo losetup $VOLUME_DEVICE $VOLUME_IMAGE
 
-          echo ::set-output name=uri::$VOLUME_DEVICE
+          echo "uri=$VOLUME_DEVICE" >> $GITHUB_OUTPUT
         id: volume-device
 
       - name: Add server names to /etc/hosts
