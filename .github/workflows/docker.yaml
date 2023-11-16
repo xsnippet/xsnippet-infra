@@ -31,9 +31,10 @@ jobs:
     steps:
       - id: release-params
         name: Look up the Github release by tag/name and prepare a list of tags to be attached to the Docker image
+        shell: python
         run: |
-          python3 <<EOF
           import json
+          import os
           import urllib.error as e
           import urllib.request as r
 
@@ -65,12 +66,12 @@ jobs:
           if release['tag_name'] != '${{ github.event.inputs.release_tag }}':
             tags.add('${{ github.event.inputs.release_tag }}')
 
-          print(f"::set-output name=release_tag::{release['tag_name']}")
-          print(f"::set-output name=image_tags::{','.join('${{ github.event.inputs.image_name }}:' + t for t in tags)}")
-          EOF
+          with open(os.environ["GITHUB_OUTPUT"], "at") as f:
+            f.write(f"release_tag={release['tag_name']}\n")
+            f.write(f"image_tags={','.join('${{ github.event.inputs.image_name }}:' + t for t in tags)}\n")
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v1
