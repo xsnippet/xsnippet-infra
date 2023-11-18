@@ -1,33 +1,29 @@
 Infrastructure
 ==============
 
-```text
-                   ┌──────────────────┐
-                   │                  │
-                   │ LetsEncrypt      │
-                   │                  │
-                   └───────────────┬──┘     ┌────────────┐
-                       ▲           │        │            │
-                       │           │        │ PostgreSQL │
-                       │ renew TLS │        │            │
-                       │           ▼        └────┬───────┘
-                   ┌───┴───────────────┐         │  ▲
-                   │                   │         │  │
-                   │ Caddy             │         │  │
-                   │                   │         ▼  │
-                   │ ┌───────────────┐ │    ┌───────┴─────────────────────────────────────────┐
- api.xsnippet.org  │ │               │ │    │                                                 │
-──────────────────►│ │ Reverse Proxy ├─┼───►│ localhost:8080 (/opt/xsnippet-api/xsnippet-api) │
-            HTTPS  │ │               │ │    │                                                 │
-                   │ └───────────────┘ │    └─────────────────────────────────────────────────┘
-                   │                   │
-                   │ ┌───────────────┐ │    ┌───────────────────┐
-     xsnippet.org  │ │               │ │    │                   │
-──────────────────►│ │ Webserver     ├─┼───►│ /opt/xsnippet-web │
-            HTTPS  │ │               │ │    │                   │
-                   │ └───────────────┘ │    └───────────────────┘
-                   │                   │
-                   └───────────────────┘
+```mermaid
+---
+title: Reference Architecture
+---
+
+flowchart LR
+    subgraph caddy ["Caddy"]
+        reverse_proxy("Reverse Proxy\n@ api.xsnippet.org")
+        webserver("Webserver\n@ xsnippet.org")
+    end
+
+    letsencrypt[/"Let's Encrypt"/]
+    caddy -->|"renew TLS certificates"| letsencrypt
+
+    user(("User"))
+    user -->|"HTTPS"| reverse_proxy
+    user -->|"HTTPS"| webserver
+
+    reverse_proxy -->|"proxy to"| xsnippet_api[["localhost:8080\n@ /opt/xsnippet-api/xsnippet-api"]]
+    webserver -->|"serve at"| xsnippet_web[["HTML/JS/CSS\n@ /opt/xsnippet-web/"]]
+
+    postgres[("PostgreSQL")]
+    xsnippet_api --> postgres
 ```
 
 The project provides the [Ansible] playbook to deploy [XSnippet] service on a
