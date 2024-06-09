@@ -68,6 +68,13 @@
   become: true
   become_user: postgres
 
+- name: Install the script for backup rotation
+  ansible.builtin.copy:
+    src: 'rotate.py'
+    dest: '/usr/local/bin/rotate.py'
+    mode: 'u=rwx,g=rx,o=rx'
+  become: true
+
 - name: Add a service template that allows creating backups of postgresql databases
   ansible.builtin.template:
     src: postgres-backups@.service.j2
