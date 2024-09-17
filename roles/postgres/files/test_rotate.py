@@ -3,6 +3,8 @@ import subprocess
 
 import pytest
 
+import rotate
+
 
 EXPECTED_FILES = [
     "2024-06-27.tar.gz",
@@ -123,3 +125,26 @@ def test_keep_pattern_does_not_match_anything(backups):
         ]
     )
     assert sorted(item.name for item in backups.glob("*")) == EXPECTED_FILES
+
+
+@pytest.mark.parametrize(
+    "size,expected",
+    [
+        (0, "0 B"),
+        (1, "1 B"),
+        (1023, "1023 B"),
+        (1024, "1.0 KiB"),
+        (1025, "1.0 KiB"),
+        (1024 * 1024, "1.0 MiB"),
+        (5 * 1024 * 1024, "5.0 MiB"),
+        (1024 * 1024 * 1024, "1.0 GiB"),
+        (10 * 1024 * 1024 * 1024, "10.0 GiB"),
+        (1024 * 1024 * 1024 * 1024, "1.0 TiB"),
+        (13.5 * 1024 * 1024 * 1024 * 1024, "13.5 TiB"),
+        (1024 * 1024 * 1024 * 1024 * 1024, "1.0 PiB"),
+        (145.7 * 1024 * 1024 * 1024 * 1024 * 1024, "145.7 PiB"),
+        (1024 * 1024 * 1024 * 1024 * 1024 * 1024, "1024.0 PiB"),
+    ],
+)
+def test_approximate_size(size, expected):
+    assert rotate.approximate_size(size) == expected

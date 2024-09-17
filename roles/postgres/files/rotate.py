@@ -97,8 +97,26 @@ def cleanup(to_keep: list[Backup], to_remove: list[Backup], *, dry_run: bool = T
         for backup in to_remove:
             backup.path.unlink()
 
-    print(f"Used space: {len(to_keep)} files, {used_space} bytes")
-    print(f"Freed space: {len(to_remove)} files, {freed_space} bytes")
+    print(f"Used space: {len(to_keep)} files, {approximate_size(used_space)}")
+    print(f"Freed space: {len(to_remove)} files, {approximate_size(freed_space)}")
+
+
+def approximate_size(size: int) -> str:
+    """Convert size in bytes to a human-readable form."""
+
+    units = {
+        2**10: "KiB",
+        2**20: "MiB",
+        2**30: "GiB",
+        2**40: "TiB",
+        2**50: "PiB",
+    }
+
+    for multiplier, name in reversed(units.items()):
+        if size >= multiplier:
+            return "{:.1f} {}".format(size / multiplier, name)
+
+    return "{} B".format(size)
 
 
 def main():
