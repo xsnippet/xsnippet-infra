@@ -1,0 +1,35 @@
+- name: Restore database backups if necessary
+  become: true
+  become_user: postgres
+  block:
+    - name: Check if we need to restore a database backup
+      community.postgresql.postgresql_query:
+        db: "{{ item.database }}"
+        # pg_tables is a system view that is implicitly created in every
+        # database. The information in is local to that particular database.
+        query: "SELECT * FROM pg_catalog.pg_tables WHERE tableowner = %s"
+        positional_args:
+          - "{{ item.username }}"
+      register: existing_tables
+
+    - name: Copy and restore a database backup (only if the database is empty)
+      when: existing_tables.rowcount == 0
+      block:
+        - name: Create a temporary backup directory
+          ansible.builtin.tempfile:
+            state: directory
+            suffix: backup
+          register: backup_tmp_dir
+
+        - name: Copy the database backup
+          ansible.builtin.copy:
+            src: "{{ item.backup_restore }}"
+            dest: "{{ [backup_tmp_dir.path, item.backup_restore | basename] | path_join }}"
+            mode: 'u=rw,g=r,o='
+
+        - name: Restore the database backup
+          community.postgresql.postgresql_db:
+            name: "{{ item.database }}"
+            state: "restore"
+            target: "{{ [backup_tmp_dir.path, item.backup_restore | basename] | path_join }}"
+            target_opts: "--single-transaction --exit-on-error"
