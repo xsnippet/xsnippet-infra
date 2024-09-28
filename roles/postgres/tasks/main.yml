@@ -57,6 +57,12 @@
   become: true
   become_user: postgres
 
+- name: Restore database backups if necessary
+  ansible.builtin.include_tasks:
+    file: restore.yml
+  with_items: "{{ postgres_users }}"
+  when: item.backup_restore is defined and item.backup_restore
+
 - name: Install the script for backup rotation
   ansible.builtin.copy:
     src: 'rotate.py'
