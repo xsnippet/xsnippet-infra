@@ -8,5 +8,5 @@ User = postgres
 Group = postgres
 WorkingDirectory = {{ postgres_backups_dir }}
 ExecStartPre = +/usr/bin/chown postgres:postgres {{ postgres_backups_dir }}
-ExecStart = /usr/bin/bash -c "/usr/bin/pg_dump --compress=9 --no-owner --format=p --file=%i_$(TZ=UTC date +%%Y%%m%%d-%%H%%M%%S).sql.gz %i"
+ExecStart = /usr/bin/bash -c "/usr/bin/pg_dump --compress=9 --format=c --file=%i_$(TZ=UTC date +%%Y%%m%%d-%%H%%M%%S).pgc %i"
 ExecStartPost = /usr/bin/python3 /usr/local/bin/rotate.py --no-dry-run --keep 30 --dir {{ postgres_backups_dir }}
