@@ -60,6 +60,14 @@ jobs:
           popd
 
   ansible:
+    strategy:
+      matrix:
+        db_backup:
+          # Clean install
+          - ''
+          # Restore a database backup
+          - 'testdata/xsnippet-api_20241003-030004.pgc'
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -96,8 +104,28 @@ jobs:
 
       - name: Run the playbook
         run: |
+          read -r -d '' extra_vars << 'EOF' || true
+          {
+            "volume_device": "${{ steps.volume-device.outputs.uri }}",
+            "postgres_users": [
+              {
+                "database": "{{ xsnippet_api_user }}",
+                "username": "{{ xsnippet_api_user }}",
+                "backup_schedule": "*-*-* 3:00:00",
+                "backup_restore": "${{ matrix.db_backup }}"
+              }
+            ]
+          }
+          EOF
+
           ansible-playbook \
             -vvv \
-            -e volume_device="${{ steps.volume-device.outputs.uri }}" \
+            -e "${extra_vars}" \
             --inventory inventories/ci \
             site.yml
+
+      - name: Verify that the database backup has been restored correctly
+        if: matrix.db_backup != ''
+        run: |
+          # Expect at least one full page of results
+          test "$(curl http://127.0.0.1:8080/v1/snippets | jq length)" == "20"
