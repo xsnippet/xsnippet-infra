@@ -42,28 +42,17 @@
     enabled: true
   become: true
 
-- name: Setup postgresql databases
-  community.postgresql.postgresql_db:
-    name: "{{ item.database }}"
-  with_items: "{{ postgres_users }}"
-  become: true
-  become_user: postgres
-
 - name: Setup postgresql users
   community.postgresql.postgresql_user:
-    db: "{{ item.database }}"
     user: "{{ item.username }}"
   with_items: "{{ postgres_users }}"
   become: true
   become_user: postgres
 
-- name: Grant users permissions to create tables in the schema `public`
-  community.postgresql.postgresql_privs:
-    db: "{{ item.database }}"
-    privs: CREATE
-    type: schema
-    objs: public
-    role: "{{ item.username }}"
+- name: Setup postgresql databases
+  community.postgresql.postgresql_db:
+    name: "{{ item.database }}"
+    owner: "{{ item.username }}"
   with_items: "{{ postgres_users }}"
   become: true
   become_user: postgres
