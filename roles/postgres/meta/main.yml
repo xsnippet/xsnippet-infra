@@ -28,6 +28,11 @@ argument_specs:
             description: |
               The time of when database backups should be triggered. Uses the systemd calendar event expression syntax (see man 7 systemd.time).
               If not set, backups will not be created.
+          backup_restore:
+            type: str
+            required: false
+            description: |
+              Path to a database backup to be restored.
         default: []
         description: |
           The list of database/username pairs to create.
