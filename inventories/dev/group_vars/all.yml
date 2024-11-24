@@ -1,0 +1,15 @@
+---
+
+caddy_email: dev@xsnippet.org
+goaccess_basicauth_username: xsnippet
+goaccess_server_name: dev-rt.xsnippet.org
+postgres_users:
+  - database: "{{ xsnippet_api_user }}"
+    username: "{{ xsnippet_api_user }}"
+    backup_schedule: "*-*-* 3:00:00"  # every night at 03:00 UTC
+xsnippet_api_user: xsnippet-api
+xsnippet_api_artifact: https://github.com/xsnippet/xsnippet-api/releases/download/v5.1.2/xsnippet-api-aarch64-linux.gz
+xsnippet_api_database_url: postgresql:///{{ postgres_users[0].database }}?host=/run/postgresql
+xsnippet_api_server_name: dev-api.xsnippet.org
+xsnippet_raw_server_name: dev-raw.xsnippet.org
+xsnippet_web_server_name: dev.xsnippet.org
