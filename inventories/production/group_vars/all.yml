@@ -7,15 +7,8 @@ postgres_users:
   - database: "{{ xsnippet_api_user }}"
     username: "{{ xsnippet_api_user }}"
     backup_schedule: "*-*-* 3:00:00"  # every night at 03:00 UTC
-volume_binds:
-  - path: /data/postgresql
-    mountpoint: /var/lib/postgresql
-    mode: u=rwx,g=rx,o=
-  - path: /data/postgresql-backups
-    mountpoint: /var/lib/postgresql-backups
-    mode: u=rwx,g=rx,o=
-volume_device: /dev/disk/by-id/scsi-0DO_Volume_xsnippet-state
 xsnippet_api_user: xsnippet-api
+xsnippet_api_artifact: https://github.com/xsnippet/xsnippet-api/releases/download/nightly/xsnippet-api-aarch64-linux.gz
 xsnippet_api_database_url: postgresql:///{{ postgres_users[0].database }}?host=/run/postgresql
 xsnippet_api_server_name: api.xsnippet.org
 xsnippet_raw_server_name: raw.xsnippet.org
