@@ -2,6 +2,7 @@
 Description = XSnippet API
 After = network.target network-online.target
 Wants = network-online.target
+StartLimitIntervalSec = 0
 
 [Service]
 WorkingDirectory = {{ xsnippet_api_root }}
@@ -11,6 +12,7 @@ Group = {{ xsnippet_api_user }}
 ExecStartPre = {{ xsnippet_api_database_upgrade_bin }}
 ExecStart = {{ xsnippet_api_bin }}
 Restart = on-failure
+RestartSec = 30
 
 [Install]
 WantedBy = multi-user.target
