@@ -1,6 +1,5 @@
 [xsnippet]
-2a02:8084:4:e480:244a:d5a5:ac59:617d
+xsnippet.org
 
 [xsnippet:vars]
 ansible_user = provisioner
-ansible_ssh_common_args = -J bunny@hoth.kalnytskyi.com
