@@ -37,10 +37,20 @@ jobs:
           # Ensure that servers we're deploying to are known. Otherwise,
           # Ansible may fail with host key verification error.
           mkdir -p ~/.ssh && echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          cat <<EOF > ~/.ssh/config
+          Host _jumphost
+            User bunny
+            HostName hoth.kalnytskyi.com
+            IdentityFile ${{ steps.ssh-key.outputs.uri }}
+
+          Host xsnippet.org
+            HostName 2a02:8084:4:e480:244a:d5a5:ac59:617d
+            ProxyJump _jumphost
+            IdentityFile ${{ steps.ssh-key.outputs.uri }}
+          EOF
 
           ansible-playbook \
             -vv \
-            -e ansible_ssh_private_key_file="${{ steps.ssh-key.outputs.uri }}" \
             -e goaccess_basicauth_password="${{ secrets.GOACCESS_PASSWORD }}" \
             --inventory inventories/production \
             site.yml
