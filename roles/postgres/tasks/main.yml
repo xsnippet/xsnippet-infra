@@ -61,7 +61,7 @@
   ansible.builtin.include_tasks:
     file: restore.yml
   with_items: "{{ postgres_users }}"
-  when: item.backup_restore is defined and item.backup_restore
+  when: item.backup_restore is defined and item.backup_restore | length > 0
 
 - name: Install the script for backup rotation
   ansible.builtin.copy:
@@ -83,7 +83,7 @@
     dest: /usr/lib/systemd/system/postgres-backups@{{ item.database }}.timer
     mode: 'u=rw,g=r,o=r'
   with_items: "{{ postgres_users }}"
-  when: item.backup_schedule is defined and item.backup_schedule
+  when: item.backup_schedule is defined and item.backup_schedule | length > 0
   become: true
 
 - name: Enable timers triggering backups of postgresql databases
@@ -92,5 +92,5 @@
     state: started
     enabled: true
   with_items: "{{ postgres_users }}"
-  when: item.backup_schedule is defined and item.backup_schedule
+  when: item.backup_schedule is defined and item.backup_schedule | length > 0
   become: true
