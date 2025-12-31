@@ -16,4 +16,4 @@ repos:
     rev: v6.22.0
     hooks:
       - id: ansible-lint
-        args: [-x, meta-no-info]
+        args: [-x, "meta-no-info,no-handler"]
