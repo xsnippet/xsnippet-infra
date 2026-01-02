@@ -12,19 +12,25 @@
     state: present
   become: true
 
-- name: Add caddy repository signing key
-  ansible.builtin.apt_key:
-    url: "{{ caddy_apt_repo_gpg }}"
-    state: present
-  become: true
-
 - name: Add caddy repository
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    state: present
-    filename: caddy
-  with_items: "{{ caddy_apt_repo }}"
+  ansible.builtin.deb822_repository:
+    name: caddy
+    types:
+      - deb
+      - deb-src
+    uris: "{{ caddy_apt_repo }}"
+    suites: any-version
+    components:
+      - main
+    signed_by: "{{ caddy_apt_repo_gpg }}"
   become: true
+  register: caddy_repo_result
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: caddy_repo_result.changed
 
 - name: Install the caddy package
   ansible.builtin.apt:

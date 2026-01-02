@@ -2,12 +2,12 @@
 
 - name: Check if the external volume already has a filesystem
   ansible.builtin.command: "lsblk --fs --json {{ volume_device }}"
-  register: lsblk
+  register: volume_lsblk
   changed_when: false
 
 - name: Check if the external volume already has a filesystem
   ansible.builtin.set_fact:
-    volume_has_fs: "{{ (lsblk.stdout | from_json)['blockdevices'][0]['fstype'] is not none }}"
+    volume_has_fs: "{{ (volume_lsblk.stdout | from_json)['blockdevices'][0]['fstype'] is not none }}"
 
 - name: If not, create a new filesystem
   ansible.builtin.command: "mkfs.{{ volume_fs }} {{ volume_device }}"

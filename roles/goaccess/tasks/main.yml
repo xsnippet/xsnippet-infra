@@ -12,19 +12,24 @@
     state: present
   become: true
 
-- name: Add goaccess repository signing key
-  ansible.builtin.apt_key:
-    url: "{{ goaccess_apt_repo_gpg }}"
-    state: present
-  become: true
-
 - name: Add goaccess repository
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    state: present
-    filename: goaccess
-  with_items: "{{ goaccess_apt_repo }}"
+  ansible.builtin.deb822_repository:
+    name: goaccess
+    types:
+      - deb
+    uris: "{{ goaccess_apt_repo }}"
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components:
+      - main
+    signed_by: "{{ goaccess_apt_repo_gpg }}"
   become: true
+  register: goaccess_repo_result
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: goaccess_repo_result.changed
 
 - name: Install the goaccess package
   ansible.builtin.apt:

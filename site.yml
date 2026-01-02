@@ -10,7 +10,9 @@
     # https://docs.ansible.com/ansible-core/2.12/user_guide/become.html#risks-of-becoming-an-unprivileged-user
     - name: Install prerequisite packages
       ansible.builtin.apt:
-        name: acl
+        name:
+          - acl
+          - python3-debian
         state: present
       become: true
 

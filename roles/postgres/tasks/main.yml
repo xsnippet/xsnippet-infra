@@ -12,19 +12,25 @@
     state: present
   become: true
 
-- name: Add postgres repository signing key
-  ansible.builtin.apt_key:
-    url: "{{ postgres_apt_repo_gpg }}"
-    state: present
-  become: true
-
 - name: Add postgres repository
-  ansible.builtin.apt_repository:
-    repo: "{{ item }}"
-    state: present
-    filename: postgres
-  with_items: "{{ postgres_apt_repo }}"
+  ansible.builtin.deb822_repository:
+    name: postgres
+    types:
+      - deb
+      - deb-src
+    uris: "{{ postgres_apt_repo }}"
+    suites: "{{ ansible_facts['distribution_release'] }}-pgdg"
+    components:
+      - main
+    signed_by: "{{ postgres_apt_repo_gpg }}"
   become: true
+  register: postgres_repo_result
+
+- name: Update apt cache if needed
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: postgres_repo_result.changed
 
 - name: Install the postgresql package
   ansible.builtin.apt:
@@ -61,7 +67,7 @@
   ansible.builtin.include_tasks:
     file: restore.yml
   with_items: "{{ postgres_users }}"
-  when: item.backup_restore is defined and item.backup_restore
+  when: item.backup_restore is defined and item.backup_restore | length > 0
 
 - name: Install the script for backup rotation
   ansible.builtin.copy:
@@ -83,7 +89,7 @@
     dest: /usr/lib/systemd/system/postgres-backups@{{ item.database }}.timer
     mode: 'u=rw,g=r,o=r'
   with_items: "{{ postgres_users }}"
-  when: item.backup_schedule is defined and item.backup_schedule
+  when: item.backup_schedule is defined and item.backup_schedule | length > 0
   become: true
 
 - name: Enable timers triggering backups of postgresql databases
@@ -92,5 +98,5 @@
     state: started
     enabled: true
   with_items: "{{ postgres_users }}"
-  when: item.backup_schedule is defined and item.backup_schedule
+  when: item.backup_schedule is defined and item.backup_schedule | length > 0
   become: true

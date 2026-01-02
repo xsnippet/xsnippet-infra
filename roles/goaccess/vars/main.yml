@@ -4,7 +4,6 @@ goaccess_apt_prerequisite_packages:
   - debian-keyring
   - debian-archive-keyring
   - apt-transport-https
-goaccess_apt_repo:
-  - deb https://deb.goaccess.io/ {{ ansible_distribution_release }} main
+goaccess_apt_repo: https://deb.goaccess.io/
 goaccess_apt_repo_gpg: https://deb.goaccess.io/gnugpg.key
 goaccess_sysconf_path: /etc/goaccess/goaccess.conf
