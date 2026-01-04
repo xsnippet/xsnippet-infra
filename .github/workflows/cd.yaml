@@ -44,7 +44,7 @@ jobs:
             IdentityFile ${{ steps.ssh-key.outputs.uri }}
 
           Host xsnippet.org
-            HostName 2a02:8084:4:e480:244a:d5a5:ac59:617d
+            HostName ${{ vars.TARGET_HOST_ADDRESS }}
             ProxyJump _jumphost
             IdentityFile ${{ steps.ssh-key.outputs.uri }}
           EOF
