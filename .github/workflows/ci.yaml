@@ -111,6 +111,7 @@ jobs:
               {
                 "database": "{{ xsnippet_api_user }}",
                 "username": "{{ xsnippet_api_user }}",
+                "backup_dir": "/var/lib/{{ xsnippet_api_user }}/backups",
                 "backup_schedule": "*-*-* 3:00:00",
                 "backup_restore": "${{ matrix.db_backup }}"
               }

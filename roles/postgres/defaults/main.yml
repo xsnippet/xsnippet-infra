@@ -2,3 +2,5 @@
 
 postgres_users: []
 postgres_backups_dir: /var/lib/postgresql-backups
+postgres_backups_dir_owner: "{{ xsnippet_api_user }}"
+postgres_backups_dir_group: "{{ xsnippet_api_user }}"

@@ -76,11 +76,23 @@
     mode: 'u=rwx,g=rx,o=rx'
   become: true
 
-- name: Add a service template that allows creating backups of postgresql databases
+- name: Add a service that creates a backup of a postgresql database
   ansible.builtin.template:
     src: postgres-backups@.service.j2
-    dest: /usr/lib/systemd/system/postgres-backups@.service
+    dest: /usr/lib/systemd/system/postgres-backups@{{ item.database }}.service
     mode: 'u=rw,g=r,o=r'
+  become: true
+  when: item.backup_schedule is defined and item.backup_schedule | length > 0
+
+- name: Pre-create the directory for storing backups
+  ansible.builtin.file:
+    path: "{{ item.backup_dir }}"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    state: directory
+    mode: u=rwx,g=rwx,o=
+  with_items: "{{ postgres_users }}"
+  when: item.backup_schedule is defined and item.backup_schedule | length > 0
   become: true
 
 - name: Add timers triggering backups of postgresql databases

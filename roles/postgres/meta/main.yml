@@ -22,6 +22,11 @@ argument_specs:
             required: true
             description: |
               The username to create with permissions to the database.
+          backup_dir:
+            type: str
+            required: false
+            description: |
+              Path to a directory where database backups will be stored.
           backup_schedule:
             type: str
             required: false

@@ -6,6 +6,7 @@ goaccess_server_name: rt.xsnippet.org
 postgres_users:
   - database: "{{ xsnippet_api_user }}"
     username: "{{ xsnippet_api_user }}"
+    backup_dir: "/var/lib/{{ xsnippet_api_user }}/backups"
     backup_schedule: "*-*-* 3:00:00"  # every night at 03:00 UTC
 xsnippet_api_user: xsnippet-api
 xsnippet_api_artifact: https://github.com/xsnippet/xsnippet-api/releases/download/nightly/xsnippet-api-aarch64-linux.gz

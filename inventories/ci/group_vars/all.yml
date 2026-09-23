@@ -4,13 +4,14 @@ goaccess_server_name: rt.xsnippet.local
 postgres_users:
   - database: "{{ xsnippet_api_user }}"
     username: "{{ xsnippet_api_user }}"
+    backup_dir: "/var/lib/{{ xsnippet_api_user }}/backups"
     backup_schedule: "*-*-* 3:00:00"  # every night at 03:00 UTC
 volume_binds:
   - path: /data/postgresql
     mountpoint: /var/lib/postgresql
     mode: u=rwx,g=rx,o=
   - path: /data/postgresql-backups
-    mountpoint: /var/lib/postgresql-backups
+    mountpoint: /var/lib/{{ xsnippet_api_user }}/backups
     mode: u=rwx,g=rx,o=
 xsnippet_api_user: xsnippet-api
 xsnippet_api_database_url: postgresql:///{{ postgres_users[0].database }}?host=/run/postgresql
