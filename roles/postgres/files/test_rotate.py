@@ -2,9 +2,7 @@ import pathlib
 import subprocess
 
 import pytest
-
 import rotate
-
 
 EXPECTED_FILES = [
     "2024-06-27.tar.gz",
