@@ -4,7 +4,7 @@
   block:
     - name: Check if we need to restore a database backup
       community.postgresql.postgresql_query:
-        db: "{{ item.database }}"
+        login_db: "{{ item.database }}"
         # pg_tables is a system view that is implicitly created in every
         # database. The information in is local to that particular database.
         query: "SELECT * FROM pg_catalog.pg_tables WHERE tableowner = %s"
