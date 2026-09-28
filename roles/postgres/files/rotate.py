@@ -114,9 +114,9 @@ def approximate_size(size: int) -> str:
 
     for multiplier, name in reversed(units.items()):
         if size >= multiplier:
-            return "{:.1f} {}".format(size / multiplier, name)
+            return f"{size / multiplier:.1f} {name}"
 
-    return "{} B".format(size)
+    return f"{size} B"
 
 
 def main():
