@@ -51,6 +51,9 @@ Some key points about the components can be found below:
 Usage
 =====
 
+For a bootable disk image usable with systemd-nspawn and QEMU, see the
+[mkosi configuration and usage guide](mkosi/README.md).
+
 It's as easy as running the following command:
 
 ```shell

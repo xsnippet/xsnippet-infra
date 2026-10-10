@@ -1,0 +1,20 @@
+[Unit]
+Description = XSnippet API
+After = network.target network-online.target postgresql.service
+Wants = network-online.target
+Requires = xsnippet-database.service
+After = xsnippet-database.service
+StartLimitIntervalSec = 0
+
+[Service]
+WorkingDirectory = /opt/xsnippet-api
+EnvironmentFile = /opt/xsnippet-api/.env
+User = xsnippet-api
+Group = xsnippet-api
+ExecStartPre = /opt/xsnippet-api/database-upgrade
+ExecStart = /opt/xsnippet-api/xsnippet-api
+Restart = on-failure
+RestartSec = 30
+
+[Install]
+WantedBy = multi-user.target

@@ -1,0 +1,17 @@
+{
+  skip_install_trust
+
+  log {
+    format filter {
+      wrap json
+      fields {
+        common_log delete
+        request>headers>Authorization delete
+      }
+    }
+  }
+
+  email {$CADDY_EMAIL}
+}
+
+import /etc/caddy/conf.d/*.caddy

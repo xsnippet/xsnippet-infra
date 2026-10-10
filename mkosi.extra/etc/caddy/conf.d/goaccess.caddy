@@ -1,0 +1,11 @@
+{$GOACCESS_HOST} {
+  encode gzip zstd
+
+  basicauth {
+    {$GOACCESS_USER} {$GOACCESS_PASSWORD_HASH}
+  }
+
+  reverse_proxy /ws 127.0.0.1:7890
+  root * /opt/goaccess
+  file_server
+}

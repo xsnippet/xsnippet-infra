@@ -1,1 +1,4 @@
 __pycache__
+mkosi.output/
+mkosi.cache/
+mkosi.local.conf

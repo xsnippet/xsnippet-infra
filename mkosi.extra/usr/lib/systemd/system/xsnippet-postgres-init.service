@@ -1,0 +1,13 @@
+[Unit]
+Description=Create PostgreSQL cluster data on first boot
+Before=postgresql@17-main.service
+RequiresMountsFor=/var/lib/postgresql
+ConditionPathExists=!/var/lib/postgresql/17/main/PG_VERSION
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/lib/postgresql/17/bin/initdb -D /var/lib/postgresql/17/main --auth-local=peer --auth-host=scram-sha-256
+
+[Install]
+RequiredBy=postgresql@17-main.service

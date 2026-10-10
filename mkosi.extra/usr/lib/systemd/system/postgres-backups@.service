@@ -1,0 +1,14 @@
+[Unit]
+Description = Back up the PostgresSQL database `%i`
+Requires = postgresql.service
+After = postgresql.service
+Requires=xsnippet-database.service
+After=xsnippet-database.service
+
+[Service]
+User = postgres
+Group = postgres
+WorkingDirectory = /var/lib/postgresql-backups
+ExecStartPre = +/usr/bin/chown postgres:postgres /var/lib/postgresql-backups
+ExecStart = /usr/bin/bash -c "/usr/bin/pg_dump --compress=9 --format=c --file=%i_$(TZ=UTC date +%%Y%%m%%d-%%H%%M%%S).pgc %i"
+ExecStartPost = /usr/bin/python3 /usr/local/bin/rotate.py --no-dry-run --keep 30 --pattern %i_*.pgc --dir /var/lib/postgresql-backups

@@ -1,0 +1,77 @@
+#!/bin/sh
+set -eu
+
+case "$ARCHITECTURE" in
+    x86-64) artifact_arch=x86_64 ;;
+    arm64) artifact_arch=aarch64 ;;
+    *) echo "Unsupported API architecture: $ARCHITECTURE" >&2; exit 1 ;;
+esac
+tmpdir=$(mktemp -d)
+trap 'rm -rf "$tmpdir"' EXIT
+curl --fail --location --retry 3 \
+    "https://github.com/xsnippet/xsnippet-api/releases/download/$API_RELEASE/xsnippet-api-$artifact_arch-linux.gz" \
+    -o "$tmpdir/api.gz"
+# Despite its .gz suffix, the release workflow produces a tar.gz archive.
+tar --no-same-owner -xzf "$tmpdir/api.gz" -C /opt/xsnippet-api
+chmod 0755 /opt/xsnippet-api/xsnippet-api
+mkdir -p /opt/xsnippet-api/.src /opt/xsnippet-web /etc/xsnippet
+curl --fail --location --retry 3 \
+    "https://github.com/xsnippet/xsnippet-api/archive/refs/tags/$API_RELEASE.tar.gz" \
+    -o "$tmpdir/source.tar.gz"
+tar --no-same-owner -xzf "$tmpdir/source.tar.gz" --strip-components=1 -C /opt/xsnippet-api/.src
+curl --fail --location --retry 3 \
+    "https://github.com/xsnippet/xsnippet-web/releases/download/$WEB_RELEASE/xsnippet-web.tar.gz" \
+    -o "$tmpdir/web.tar.gz"
+tar --no-same-owner -xzf "$tmpdir/web.tar.gz" -C /opt/xsnippet-web
+
+# Generate only settings that depend on the selected build profile.
+python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+keys = ("API_HOST", "RAW_HOST", "WEB_HOST", "GOACCESS_HOST", "CADDY_EMAIL",
+        "GOACCESS_USER", "GOACCESS_PASSWORD_HASH")
+lines = [f"{key}={json.dumps(os.environ.get(key, ''))}" for key in keys]
+Path('/etc/xsnippet/caddy.env').write_text('\n'.join(lines) + '\n')
+Path('/opt/xsnippet-web/conf.json').write_text(json.dumps({
+    'API_BASE_URI': '//' + os.environ['API_HOST'],
+    'RAW_SNIPPET_URI_FORMAT': '//' + os.environ['RAW_HOST'] + '/%s',
+}, indent=4) + '\n')
+p = Path('/etc/goaccess/goaccess.conf')
+p.write_text(p.read_text().replace('rt.xsnippet.org', os.environ['GOACCESS_HOST']))
+if not os.environ.get('GOACCESS_PASSWORD_HASH'):
+    p = Path('/etc/caddy/conf.d/goaccess.caddy')
+    p.write_text(p.read_text().replace(
+        '  basicauth {\n    {$GOACCESS_USER} {$GOACCESS_PASSWORD_HASH}\n  }\n', ''))
+if os.environ.get('LOCAL_TLS') == 'yes':
+    for p in Path('/etc/caddy/conf.d').glob('*.caddy'):
+        p.write_text(p.read_text().replace(' {\n  encode', ' {\n  tls internal\n  encode'))
+PY
+
+systemd-sysusers
+systemd-tmpfiles --create
+chmod 0755 /usr/local/libexec/xsnippet-database
+# Package installation may have created a cluster. Ship an empty data directory
+# and initialize it with the first-boot unit.
+if pg_lsclusters --no-header | grep -q '^17 main '; then
+    pg_dropcluster --stop 17 main
+fi
+install -d -m 0755 /etc/postgresql/17/main
+cp /usr/share/postgresql/17/postgresql.conf.sample /etc/postgresql/17/main/postgresql.conf
+cat >> /etc/postgresql/17/main/postgresql.conf <<'EOF'
+data_directory = '/var/lib/postgresql/17/main'
+hba_file = '/etc/postgresql/17/main/pg_hba.conf'
+ident_file = '/etc/postgresql/17/main/pg_ident.conf'
+external_pid_file = '/run/postgresql/17-main.pid'
+listen_addresses = ''
+unix_socket_directories = '/run/postgresql'
+EOF
+printf 'local all all peer\n' > /etc/postgresql/17/main/pg_hba.conf
+touch /etc/postgresql/17/main/pg_ident.conf
+printf 'auto\n' > /etc/postgresql/17/main/start.conf
+systemctl enable systemd-networkd systemd-resolved systemd-timesyncd \
+    nftables caddy postgresql xsnippet-api \
+    xsnippet-postgres-init.service goaccess.service goaccess-input.socket \
+    goaccess-input.service postgres-backups@xsnippet-api.timer
+caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
