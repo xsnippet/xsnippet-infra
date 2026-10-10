@@ -1,0 +1,12 @@
+[Unit]
+Description=Initialize XSnippet database and optionally restore a backup
+Requires=postgresql@17-main.service
+After=postgresql@17-main.service
+Before=xsnippet-api.service
+RequiresMountsFor=/var/lib/postgresql /var/lib/postgresql-backups
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/local/libexec/xsnippet-database
+RemainAfterExit=yes

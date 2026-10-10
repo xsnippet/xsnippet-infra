@@ -1,0 +1,9 @@
+[Socket]
+ListenFIFO=%t/%n
+SocketUser=goaccess
+SocketGroup=goaccess
+SocketMode=0600
+RemoveOnStop=true
+
+[Install]
+WantedBy=sockets.target

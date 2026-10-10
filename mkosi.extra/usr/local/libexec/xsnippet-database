@@ -1,0 +1,12 @@
+#!/bin/sh
+set -eu
+if [ "$(psql -tAc "SELECT count(*) FROM pg_roles WHERE rolname = 'xsnippet-api'")" = 0 ]; then
+    createuser xsnippet-api
+fi
+if [ "$(psql -tAc "SELECT count(*) FROM pg_database WHERE datname = 'xsnippet-api'")" = 0 ]; then
+    createdb --owner=xsnippet-api xsnippet-api
+fi
+if [ -f /var/lib/postgresql-backups/restore.pgc ] &&
+   [ "$(psql -d xsnippet-api -tAc "SELECT count(*) FROM pg_catalog.pg_tables WHERE tableowner = 'xsnippet-api'")" = 0 ]; then
+    pg_restore --dbname=xsnippet-api --single-transaction --exit-on-error /var/lib/postgresql-backups/restore.pgc
+fi

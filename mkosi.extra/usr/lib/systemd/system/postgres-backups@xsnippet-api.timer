@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly XSnippet database backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 UTC
+Persistent=yes
+Unit=postgres-backups@xsnippet-api.service
+
+[Install]
+WantedBy=timers.target

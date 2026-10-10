@@ -1,0 +1,9 @@
+{$RAW_HOST} {
+  encode gzip zstd
+  log
+
+  rewrite * /v1/snippets{path}?
+  reverse_proxy 127.0.0.1:8080 {
+    header_up Accept text/plain
+  }
+}
