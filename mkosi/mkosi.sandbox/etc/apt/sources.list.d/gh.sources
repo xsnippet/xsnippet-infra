@@ -1,0 +1,6 @@
+Components: main
+X-Repolib-Name: github-cli
+Signed-by: /etc/apt/keyrings/gh.asc
+Suites: stable
+Types: deb
+URIs: https://cli.github.com/packages

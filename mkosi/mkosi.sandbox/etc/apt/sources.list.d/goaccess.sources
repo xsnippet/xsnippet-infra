@@ -1,0 +1,6 @@
+Components: main
+X-Repolib-Name: goaccess
+Signed-By: /etc/apt/keyrings/goaccess.asc
+Suites: trixie
+Types: deb
+URIs: https://deb.goaccess.io/

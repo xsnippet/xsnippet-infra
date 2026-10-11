@@ -1,0 +1,6 @@
+Components: main
+X-Repolib-Name: caddy
+Signed-By: /etc/apt/keyrings/caddy.asc
+Suites: any-version
+Types: deb deb-src
+URIs: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
