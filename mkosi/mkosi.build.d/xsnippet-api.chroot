@@ -1,0 +1,32 @@
+#!/bin/bash
+
+set -eux
+set -o pipefail
+
+OWNER="xsnippet"
+REPO="xsnippet-api"
+VERSION="v5.1.3"
+
+case "$ARCHITECTURE" in
+    arm64)
+        ASSET="xsnippet-api-aarch64-linux.gz"
+        ;;
+    x86-64)
+        ASSET="xsnippet-api-x86_64-linux.gz"
+        ;;
+    *)
+        echo "Unsupported architecture: ${ARCHITECTURE}" >&2
+        exit 1
+        ;;
+esac
+
+TMPDIR=$(mktemp -d)
+
+gh release download "${VERSION}" \
+    --repo "${OWNER}/${REPO}" \
+    --pattern "${ASSET}" \
+    --dir "${TMPDIR}"
+gh attestation verify --owner "${OWNER}" "${TMPDIR}/${ASSET}"
+
+mkdir -p "${DESTDIR}/usr/bin"
+tar --no-same-owner --no-same-permissions -xzf "${TMPDIR}/${ASSET}" -C "${DESTDIR}/usr/bin"
