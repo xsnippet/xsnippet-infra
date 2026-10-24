@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+
+from pathlib import Path
+import subprocess
+
+
+def ensure_cluster():
+    # Keep existing main clusters, including ones from older PostgreSQL versions.
+    # Installing a newer server must not silently create a replacement database.
+    clusters = sorted(Path("/etc/postgresql").glob("*/main/postgresql.conf"))
+    if not clusters:
+        versions = [
+            path.parent.parent.name
+            for path in Path("/usr/lib/postgresql").glob("*/bin/initdb")
+        ]
+        if not versions:
+            raise RuntimeError("No PostgreSQL server installed")
+        version = max(versions, key=lambda value: tuple(map(int, value.split("."))))
+        subprocess.run(["pg_createcluster", version, "main"], check=True)
+        clusters = [Path(f"/etc/postgresql/{version}/main/postgresql.conf")]
+
+    for cluster in clusters:
+        version = cluster.parent.parent.name
+        # Explicitly start the instance: systemd's generator ran before the new
+        # cluster existed and therefore has not added it to postgresql.service.
+        subprocess.run(["systemctl", "start", f"postgresql@{version}-main.service"], check=True)
+
+
+if __name__ == "__main__":
+    ensure_cluster()

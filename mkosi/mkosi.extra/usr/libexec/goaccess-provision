@@ -1,0 +1,27 @@
+#!/usr/bin/python3
+
+import json
+from pathlib import Path
+import sys
+
+from jinja2 import StrictUndefined, Template
+
+
+def provision(config, template_path, output_path):
+    template = Template(
+        template_path.read_text(encoding="utf-8"),
+        undefined=StrictUndefined,
+        keep_trailing_newline=True,
+    )
+    output_path.write_text(template.render(config), encoding="utf-8")
+
+
+if __name__ == "__main__":
+    with open(sys.argv[1], "rt", encoding="utf-8") as f:
+        config = json.load(f)
+
+    provision(
+        config,
+        Path("/usr/share/xsnippet/goaccess.conf.j2"),
+        Path("/etc/goaccess/goaccess.conf"),
+    )

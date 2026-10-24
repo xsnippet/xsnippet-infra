@@ -1,0 +1,9 @@
+[Unit]
+Description=Create and start the default PostgreSQL cluster
+Before=postgresql.service
+RequiresMountsFor=/var/lib/postgresql /etc/postgresql
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/libexec/postgres-cluster-create
+RemainAfterExit=yes

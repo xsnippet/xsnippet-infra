@@ -1,0 +1,6 @@
+Components: main
+X-Repolib-Name: postgres
+Signed-By: /etc/apt/keyrings/postgres.asc
+Suites: trixie-pgdg
+Types: deb deb-src
+URIs: https://apt.postgresql.org/pub/repos/apt/

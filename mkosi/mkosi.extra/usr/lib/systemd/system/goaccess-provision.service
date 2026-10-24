@@ -1,0 +1,8 @@
+[Unit]
+Description=Render GoAccess configuration
+
+[Service]
+Type=oneshot
+ImportCredential=xsnippet.json
+ExecStart=/usr/bin/python3 /usr/libexec/goaccess-provision %d/xsnippet.json
+RemainAfterExit=yes
